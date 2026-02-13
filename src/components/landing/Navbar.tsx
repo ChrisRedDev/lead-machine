@@ -6,25 +6,25 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-strong">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/40">
+      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-neon-blue flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary-foreground" />
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <Zap className="w-3.5 h-3.5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-lg">LeadMachine AI</span>
+          <span className="font-display font-bold text-[15px] tracking-tight">LeadMachine AI</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+        <div className="hidden md:flex items-center gap-6">
+          <a href="#features" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors">Features</a>
+          <a href="#pricing" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="text-[13px] h-9 rounded-xl" onClick={() => navigate("/login")}>
             Log In
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-primary to-neon-purple hover:opacity-90" onClick={() => navigate("/dashboard")}>
+          <Button size="sm" className="text-[13px] h-9 rounded-xl bg-foreground text-background hover:bg-foreground/90" onClick={() => navigate("/login")}>
             Get Started
           </Button>
         </div>
