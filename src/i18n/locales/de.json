@@ -11,7 +11,13 @@
     "headline": "100 Qualifizierte Kunden Mit 1 Klick",
     "subheadline": "KI analysiert Ihr Unternehmen und findet kaufbereite Firmen.",
     "cta": "10 Kostenlose Leads",
-    "ctaSecondary": "So Funktioniert's"
+    "ctaSecondary": "So Funktioniert's",
+    "trustedBy": "Vertraut von"
+  },
+  "stats": {
+    "leadsGenerated": "Generierte Leads",
+    "businesses": "Betreute Unternehmen",
+    "accuracy": "Match-Genauigkeit"
   },
   "features": {
     "title": "So Funktioniert's",
@@ -29,11 +35,28 @@
     "title": "Sehen Sie Was Sie Bekommen",
     "subtitle": "Ihre ersten 10 Leads sind kostenlos. Schalten Sie den Rest frei.",
     "locked": "{{count}} weitere passende Leads warten auf Freischaltung",
-    "unlock": "Vollständige Liste Freischalten"
+    "unlock": "Vollständige Liste Freischalten",
+    "aiAnalyzing": "KI analysiert..."
+  },
+  "socialProof": {
+    "title": "Von Wachstumsteams Geliebt",
+    "subtitle": "Sehen Sie, was unsere Kunden über LeadMachine AI sagen.",
+    "t1Name": "James Mitchell",
+    "t1Role": "VP Vertrieb, TechScale",
+    "t1Quote": "LeadMachine AI hat uns in Minuten 40 qualifizierte Prospects gefunden. Wir haben 3 Deals in der ersten Woche abgeschlossen.",
+    "t2Name": "Sarah Kowalski",
+    "t2Role": "CEO, GrowthLab",
+    "t2Quote": "Die KI-Match-Scores sind unglaublich genau. Jeder Lead fühlt sich handverlesen an.",
+    "t3Name": "Alex Thompson",
+    "t3Role": "Leiter BD, CloudSync",
+    "t3Quote": "Wir haben unseren gesamten manuellen Prospecting-Workflow ersetzt. ROI war sofort — 10x mehr als erwartet."
   },
   "pricing": {
     "title": "Preise",
     "subtitle": "Kostenlos starten. Freischalten wenn Sie bereit sind.",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "save20": "20% Sparen",
     "starter": "Starter",
     "starterPrice": "Kostenlos",
     "starterCredits": "10 Leads pro Generierung",
@@ -61,6 +84,53 @@
     "proF4": "Dedizierter Support",
     "proCta": "Pro Wählen",
     "popular": "Beliebteste"
+  },
+  "footer": {
+    "description": "KI-gestützte B2B-Leadgenerierung. Finden Sie Ihre idealen Kunden mit einem Klick.",
+    "product": "Produkt",
+    "company": "Unternehmen",
+    "legal": "Rechtliches",
+    "contact": "Kontakt",
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "rights": "Alle Rechte vorbehalten."
+  },
+  "contact": {
+    "pageTitle": "Kontakt — LeadMachine AI",
+    "title": "Kontaktieren Sie Uns",
+    "subtitle": "Haben Sie eine Frage? Unser KI-Support antwortet sofort.",
+    "namePlaceholder": "Ihr Name",
+    "emailPlaceholder": "sie@firma.de",
+    "subjectPlaceholder": "Wie können wir helfen?",
+    "messagePlaceholder": "Erzählen Sie uns mehr...",
+    "send": "Nachricht Senden",
+    "thankYou": "Nachricht Erhalten!",
+    "aiResponse": "KI-Antwort",
+    "sendAnother": "Weitere Nachricht senden"
+  },
+  "terms": {
+    "pageTitle": "AGB — LeadMachine AI",
+    "title": "Allgemeine Geschäftsbedingungen",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "s1Title": "Kontobedingungen",
+    "s2Title": "Preise & Zahlungen",
+    "s3Title": "Datennutzung & Compliance",
+    "s4Title": "Erstattungen & Kündigung",
+    "s5Title": "Zulässige Nutzung",
+    "s6Title": "Datenschutz",
+    "s7Title": "Haftung",
+    "s8Title": "Änderungen der AGB"
+  },
+  "privacy": {
+    "pageTitle": "Datenschutz — LeadMachine AI",
+    "title": "Datenschutzerklärung",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "s1Title": "Daten die wir Erheben",
+    "s2Title": "Wie wir Ihre Daten Nutzen",
+    "s3Title": "Datenspeicherung & Sicherheit",
+    "s4Title": "Dritte Parteien",
+    "s5Title": "Ihre Rechte",
+    "s6Title": "Änderungen der Richtlinie"
   },
   "dashboard": {
     "generateLeads": "Leads Generieren",

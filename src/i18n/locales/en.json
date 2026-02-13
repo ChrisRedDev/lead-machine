@@ -11,7 +11,13 @@
     "headline": "Get 100 Qualified Clients In 1 Click",
     "subheadline": "AI analyzes your business and finds companies that are ready to buy from you.",
     "cta": "Get 10 Free Leads",
-    "ctaSecondary": "See How It Works"
+    "ctaSecondary": "See How It Works",
+    "trustedBy": "Trusted by"
+  },
+  "stats": {
+    "leadsGenerated": "Leads Generated",
+    "businesses": "Businesses Served",
+    "accuracy": "Match Accuracy"
   },
   "features": {
     "title": "How It Works",
@@ -29,11 +35,28 @@
     "title": "See What You Get",
     "subtitle": "Your first 10 leads are completely free. Unlock the rest to supercharge your pipeline.",
     "locked": "{{count}} more high-fit leads waiting to be unlocked",
-    "unlock": "Unlock Full List"
+    "unlock": "Unlock Full List",
+    "aiAnalyzing": "AI analyzing..."
+  },
+  "socialProof": {
+    "title": "Loved by Growth Teams",
+    "subtitle": "See what our customers say about LeadMachine AI.",
+    "t1Name": "James Mitchell",
+    "t1Role": "VP Sales, TechScale",
+    "t1Quote": "LeadMachine AI found us 40 qualified prospects in minutes. We closed 3 deals in the first week. Game changer.",
+    "t2Name": "Sarah Kowalski",
+    "t2Role": "CEO, GrowthLab",
+    "t2Quote": "The AI match scores are incredibly accurate. Every lead feels hand-picked for our business.",
+    "t3Name": "Alex Thompson",
+    "t3Role": "Head of BD, CloudSync",
+    "t3Quote": "We replaced our entire manual prospecting workflow. ROI was immediate — 10x what we expected."
   },
   "pricing": {
     "title": "Pricing",
     "subtitle": "Start free. Unlock when you're ready to grow.",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "save20": "Save 20%",
     "starter": "Starter",
     "starterPrice": "Free",
     "starterCredits": "10 leads per generation",
@@ -61,6 +84,53 @@
     "proF4": "Dedicated support",
     "proCta": "Go Pro",
     "popular": "Most Popular"
+  },
+  "footer": {
+    "description": "AI-powered B2B lead generation. Find your ideal clients in one click.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "contact": "Contact",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved."
+  },
+  "contact": {
+    "pageTitle": "Contact Us — LeadMachine AI",
+    "title": "Get In Touch",
+    "subtitle": "Have a question? Our AI-powered support will respond instantly.",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@company.com",
+    "subjectPlaceholder": "How can we help?",
+    "messagePlaceholder": "Tell us more about your question...",
+    "send": "Send Message",
+    "thankYou": "Message Received!",
+    "aiResponse": "AI Response",
+    "sendAnother": "Send another message"
+  },
+  "terms": {
+    "pageTitle": "Terms of Service — LeadMachine AI",
+    "title": "Terms of Service",
+    "lastUpdated": "Last Updated",
+    "s1Title": "Account Terms",
+    "s2Title": "Pricing & Payments",
+    "s3Title": "Data Usage & Compliance",
+    "s4Title": "Refunds & Cancellation",
+    "s5Title": "Acceptable Use",
+    "s6Title": "Data Privacy",
+    "s7Title": "Liability",
+    "s8Title": "Changes to Terms"
+  },
+  "privacy": {
+    "pageTitle": "Privacy Policy — LeadMachine AI",
+    "title": "Privacy Policy",
+    "lastUpdated": "Last Updated",
+    "s1Title": "Data We Collect",
+    "s2Title": "How We Use Your Data",
+    "s3Title": "Data Storage & Security",
+    "s4Title": "Third Parties",
+    "s5Title": "Your Rights",
+    "s6Title": "Changes to Policy"
   },
   "dashboard": {
     "generateLeads": "Generate Leads",

@@ -1,1 +1,7 @@
 project_id = "mnjpqzgbwmqszcpfbcfm"
+
+[functions.generate-leads]
+verify_jwt = false
+
+[functions.contact-ai]
+verify_jwt = false

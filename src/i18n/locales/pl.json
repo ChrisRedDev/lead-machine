@@ -11,7 +11,13 @@
     "headline": "Zdobądź 100 Kwalifikowanych Klientów Jednym Kliknięciem",
     "subheadline": "AI analizuje Twój biznes i znajduje firmy gotowe do zakupu.",
     "cta": "Zdobądź 10 Darmowych Leadów",
-    "ctaSecondary": "Zobacz Jak Działa"
+    "ctaSecondary": "Zobacz Jak Działa",
+    "trustedBy": "Zaufali nam"
+  },
+  "stats": {
+    "leadsGenerated": "Wygenerowanych Leadów",
+    "businesses": "Obsłużonych Firm",
+    "accuracy": "Dokładność Dopasowania"
   },
   "features": {
     "title": "Jak To Działa",
@@ -29,11 +35,28 @@
     "title": "Zobacz Co Otrzymasz",
     "subtitle": "Twoje pierwsze 10 leadów jest całkowicie darmowe. Odblokuj resztę.",
     "locked": "Jeszcze {{count}} dopasowanych leadów czeka na odblokowanie",
-    "unlock": "Odblokuj Pełną Listę"
+    "unlock": "Odblokuj Pełną Listę",
+    "aiAnalyzing": "AI analizuje..."
+  },
+  "socialProof": {
+    "title": "Kochane przez Zespoły Wzrostu",
+    "subtitle": "Zobacz co mówią nasi klienci o LeadMachine AI.",
+    "t1Name": "James Mitchell",
+    "t1Role": "VP Sprzedaży, TechScale",
+    "t1Quote": "LeadMachine AI znalazło nam 40 kwalifikowanych prospektów w kilka minut. Zamknęliśmy 3 transakcje w pierwszym tygodniu.",
+    "t2Name": "Sarah Kowalski",
+    "t2Role": "CEO, GrowthLab",
+    "t2Quote": "Wyniki dopasowania AI są niesamowicie dokładne. Każdy lead wydaje się ręcznie dobrany.",
+    "t3Name": "Alex Thompson",
+    "t3Role": "Szef BD, CloudSync",
+    "t3Quote": "Zastąpiliśmy cały ręczny proces prospektingu. ROI był natychmiastowy — 10x więcej niż oczekiwaliśmy."
   },
   "pricing": {
     "title": "Cennik",
     "subtitle": "Zacznij za darmo. Odblokuj gdy jesteś gotowy.",
+    "monthly": "Miesięcznie",
+    "annual": "Rocznie",
+    "save20": "Oszczędź 20%",
     "starter": "Starter",
     "starterPrice": "Za darmo",
     "starterCredits": "10 leadów na generację",
@@ -61,6 +84,53 @@
     "proF4": "Dedykowane wsparcie",
     "proCta": "Wybierz Pro",
     "popular": "Najpopularniejszy"
+  },
+  "footer": {
+    "description": "Generowanie leadów B2B napędzane AI. Znajdź idealnych klientów jednym kliknięciem.",
+    "product": "Produkt",
+    "company": "Firma",
+    "legal": "Prawne",
+    "contact": "Kontakt",
+    "terms": "Regulamin",
+    "privacy": "Polityka Prywatności",
+    "rights": "Wszelkie prawa zastrzeżone."
+  },
+  "contact": {
+    "pageTitle": "Kontakt — LeadMachine AI",
+    "title": "Skontaktuj się",
+    "subtitle": "Masz pytanie? Nasz AI odpowie natychmiast.",
+    "namePlaceholder": "Twoje imię",
+    "emailPlaceholder": "ty@firma.pl",
+    "subjectPlaceholder": "Jak możemy pomóc?",
+    "messagePlaceholder": "Powiedz nam więcej...",
+    "send": "Wyślij Wiadomość",
+    "thankYou": "Wiadomość Otrzymana!",
+    "aiResponse": "Odpowiedź AI",
+    "sendAnother": "Wyślij kolejną wiadomość"
+  },
+  "terms": {
+    "pageTitle": "Regulamin — LeadMachine AI",
+    "title": "Regulamin",
+    "lastUpdated": "Ostatnia aktualizacja",
+    "s1Title": "Warunki Konta",
+    "s2Title": "Cennik i Płatności",
+    "s3Title": "Użycie Danych i Zgodność",
+    "s4Title": "Zwroty i Anulowanie",
+    "s5Title": "Dopuszczalne Użycie",
+    "s6Title": "Prywatność Danych",
+    "s7Title": "Odpowiedzialność",
+    "s8Title": "Zmiany w Regulaminie"
+  },
+  "privacy": {
+    "pageTitle": "Polityka Prywatności — LeadMachine AI",
+    "title": "Polityka Prywatności",
+    "lastUpdated": "Ostatnia aktualizacja",
+    "s1Title": "Dane Które Zbieramy",
+    "s2Title": "Jak Używamy Twoich Danych",
+    "s3Title": "Przechowywanie i Bezpieczeństwo",
+    "s4Title": "Strony Trzecie",
+    "s5Title": "Twoje Prawa",
+    "s6Title": "Zmiany w Polityce"
   },
   "dashboard": {
     "generateLeads": "Generuj Leady",

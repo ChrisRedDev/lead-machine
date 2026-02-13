@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Lock } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -47,8 +47,19 @@ const DemoPreview = () => {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="border border-border/50 rounded-2xl overflow-hidden"
+          className="relative border border-border/50 rounded-2xl overflow-hidden"
         >
+          {/* Floating AI badge */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-[11px] font-medium text-muted-foreground">
+                <Sparkles className="w-3 h-3 inline mr-1 text-primary" />
+                {t("demo.aiAnalyzing")}
+              </span>
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
@@ -63,7 +74,14 @@ const DemoPreview = () => {
               </thead>
               <tbody>
                 {sampleLeads.map((lead, i) => (
-                  <tr key={i} className="border-b border-border/30">
+                  <motion.tr
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    className="border-b border-border/30 hover:bg-secondary/20 transition-colors"
+                  >
                     <td className="p-3 font-medium">{lead.company}</td>
                     <td className="p-3 text-muted-foreground">{lead.contact}</td>
                     <td className="p-3 text-muted-foreground">{lead.role}</td>
@@ -72,7 +90,7 @@ const DemoPreview = () => {
                     <td className="p-3">
                       <span className="text-primary font-medium">{lead.score}</span>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
                 {blurredLeads.map((lead, i) => (
                   <tr key={`blur-${i}`} className="border-b border-border/30">
@@ -92,13 +110,13 @@ const DemoPreview = () => {
           <div className="relative">
             <div className="absolute -top-32 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             <div className="bg-background border-t border-border/40 p-8 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 glow-sm">
                 <Lock className="w-5 h-5 text-primary" />
               </div>
               <p className="text-sm font-medium mb-1">{t("demo.locked", { count: 90 })}</p>
               <p className="text-xs text-muted-foreground mb-5">"{t("results.unlockOnlyVisible")}"</p>
               <Button
-                className="h-11 px-8 rounded-xl text-sm font-medium bg-foreground text-background hover:bg-foreground/90"
+                className="h-11 px-8 rounded-xl text-sm font-medium bg-foreground text-background hover:bg-foreground/90 glow-sm hover:glow-md transition-all"
                 onClick={() => navigate("/login")}
               >
                 {t("demo.unlock")}
