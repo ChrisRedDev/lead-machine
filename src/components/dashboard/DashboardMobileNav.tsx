@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut } from "lucide-react";
+import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ const DashboardMobileNav = () => {
 
   const navItems = [
     { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard" },
+    { icon: Brain, label: "AI Research", path: "/dashboard/research" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
     { icon: Coins, label: t("dashboard.credits"), path: "/dashboard/credits" },
     { icon: CreditCard, label: t("dashboard.billing"), path: "/dashboard/billing" },
@@ -34,7 +35,7 @@ const DashboardMobileNav = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="p-5 flex items-center gap-2">
-        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
+        <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center">
           <Zap className="w-4 h-4 text-primary-foreground" />
         </div>
         <span className="font-display font-bold text-[15px]">LeadMachine AI</span>
@@ -59,7 +60,7 @@ const DashboardMobileNav = () => {
 
       <div className="p-3 border-t border-border/40 space-y-2">
         <div className="flex items-center gap-2.5 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-[11px] font-bold text-accent">
+          <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-[11px] font-bold text-primary-foreground">
             {initials}
           </div>
           <p className="text-[11px] text-muted-foreground truncate flex-1">{user?.email}</p>

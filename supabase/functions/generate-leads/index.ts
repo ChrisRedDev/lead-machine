@@ -12,7 +12,6 @@ serve(async (req) => {
   }
 
   try {
-    // Auth check
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Not authenticated" }), {
@@ -53,7 +52,7 @@ serve(async (req) => {
       });
     }
 
-    const { companyUrl, description, targetLocation, targetIndustry, idealClient } = await req.json();
+    const { companyUrl, description, targetLocation, targetIndustry, idealClient, facebookUrl, instagramUrl, linkedinUrl } = await req.json();
 
     if (!companyUrl || !description) {
       return new Response(JSON.stringify({ error: "Company URL and description are required" }), {
@@ -70,18 +69,36 @@ serve(async (req) => {
       });
     }
 
-    // Build the research prompt
+    // Build social media context
+    const socialLinks = [];
+    if (facebookUrl) socialLinks.push(`Facebook: ${facebookUrl}`);
+    if (instagramUrl) socialLinks.push(`Instagram: ${instagramUrl}`);
+    if (linkedinUrl) socialLinks.push(`LinkedIn: ${linkedinUrl}`);
+    const socialContext = socialLinks.length > 0
+      ? `\nSocial media profiles to analyze:\n${socialLinks.join("\n")}`
+      : "";
+
     const locationContext = targetLocation ? `in ${targetLocation}` : "";
     const industryContext = targetIndustry ? `in the ${targetIndustry} industry` : "";
     const clientContext = idealClient ? `Ideal client: ${idealClient}.` : "";
 
-    const prompt = `I need to find potential B2B clients for a company. Here are the details:
+    // Phase 1: Deep research prompt that analyzes the business from all sources
+    const prompt = `I need to find potential B2B clients for a company. First, deeply analyze their business from these sources, then find matching clients.
 
 Company website: ${companyUrl}
 What they do: ${description}
+${socialContext}
 ${clientContext}
 
-Find 10 real companies ${locationContext} ${industryContext} that would be ideal customers for this business. For each company, provide:
+STEP 1 - ANALYZE THE BUSINESS:
+Research the company website${socialLinks.length > 0 ? " and social media profiles" : ""} to understand:
+- Their exact services/products
+- Their market positioning
+- Their target audience
+- Their unique value proposition
+
+STEP 2 - FIND MATCHING CLIENTS:
+Based on your deep understanding of this business, find 10 real companies ${locationContext} ${industryContext} that would be ideal customers. For each company, provide:
 1. Company Name
 2. Contact Person (a real decision-maker if findable, otherwise the likely title)
 3. Their Role/Title
@@ -89,9 +106,10 @@ Find 10 real companies ${locationContext} ${industryContext} that would be ideal
 5. Public Email (only publicly available)
 6. Phone (if publicly available)
 7. Industry
-8. A short reason (1-2 sentences) why they're a good fit
+8. AI Match Score (0-100, based on how well they match the ICP)
+9. A detailed reason (2-3 sentences) why they're a perfect fit based on your analysis
 
-Only include real, existing companies with publicly available information. Format as a JSON array with keys: company_name, contact_person, role, website, email, phone, industry, fit_reason`;
+Only include real, existing companies with publicly available information. Format as a JSON array with keys: company_name, contact_person, role, website, email, phone, industry, score, fit_reason`;
 
     const perplexityResponse = await fetch("https://api.perplexity.ai/chat/completions", {
       method: "POST",
@@ -104,7 +122,7 @@ Only include real, existing companies with publicly available information. Forma
         messages: [
           {
             role: "system",
-            content: "You are a B2B lead research assistant. Always return valid JSON arrays. Only include real companies with publicly available information. Never fabricate contact details.",
+            content: "You are an expert B2B lead research assistant. You deeply analyze businesses from their website and social media to understand their positioning, then find perfectly matched potential clients. Always return valid JSON arrays. Only include real companies with publicly available information. Never fabricate contact details. Include a score field (0-100) for each lead.",
           },
           { role: "user", content: prompt },
         ],
@@ -135,14 +153,12 @@ Only include real, existing companies with publicly available information. Forma
     // Parse the JSON from the response
     let leads = [];
     try {
-      // Try to extract JSON array from the response
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         leads = JSON.parse(jsonMatch[0]);
       }
     } catch (parseErr) {
       console.error("Failed to parse leads:", parseErr);
-      // Use AI to structure it
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
       if (LOVABLE_API_KEY) {
         const structureResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -156,7 +172,7 @@ Only include real, existing companies with publicly available information. Forma
             messages: [
               {
                 role: "system",
-                content: "Extract lead data from the text and return ONLY a JSON array with objects having keys: company_name, contact_person, role, website, email, phone, industry, fit_reason. No other text.",
+                content: "Extract lead data from the text and return ONLY a JSON array with objects having keys: company_name, contact_person, role, website, email, phone, industry, score, fit_reason. No other text.",
               },
               { role: "user", content },
             ],
