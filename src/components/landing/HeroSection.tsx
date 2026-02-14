@@ -10,7 +10,10 @@ const HeroSection = () => {
   const { t } = useTranslation();
 
   return (
-    <section className="relative min-h-[88vh] flex items-center justify-center px-4">
+    <section className="relative min-h-[80vh] flex items-center justify-center px-4 overflow-hidden">
+      {/* Subtle radial gradient orb */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-primary opacity-[0.07] blur-[100px] pointer-events-none" />
+
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -18,6 +21,11 @@ const HeroSection = () => {
           transition={{ duration: 0.4 }}
           className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-secondary mb-8"
         >
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-primary" />
+            <span className="w-2 h-2 rounded-full bg-accent" />
+            <span className="w-2 h-2 rounded-full bg-success" />
+          </div>
           <Sparkles className="w-3.5 h-3.5 text-primary" />
           <span className="text-xs font-medium text-muted-foreground">{t("hero.badge")}</span>
         </motion.div>
@@ -29,7 +37,7 @@ const HeroSection = () => {
           className="text-4xl sm:text-5xl md:text-7xl font-bold font-display tracking-tight leading-[1.08] mb-6"
         >
           {t("hero.headline").split(" ").slice(0, -3).join(" ")}{" "}
-          <span className="text-primary">{t("hero.headline").split(" ").slice(-3).join(" ")}</span>
+          <span className="text-gradient">{t("hero.headline").split(" ").slice(-3).join(" ")}</span>
         </motion.h1>
 
         <motion.p
@@ -49,7 +57,7 @@ const HeroSection = () => {
         >
           <Button
             size="lg"
-            className="h-12 px-8 text-[15px] font-medium rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="h-12 px-8 text-[15px] font-medium rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
             onClick={() => navigate("/login")}
           >
             {t("hero.cta")}
@@ -65,30 +73,39 @@ const HeroSection = () => {
           </Button>
         </motion.div>
 
-        {/* Hero dashboard image */}
+        {/* Hero dashboard image with gradient border */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-16 relative rounded-2xl overflow-hidden border border-border shadow-2xl shadow-black/20"
+          className="mt-16 relative p-[1px] rounded-2xl bg-gradient-to-b from-primary/30 via-accent/20 to-transparent"
         >
-          <img
-            src={heroImage}
-            alt="LeadMachine AI Dashboard - B2B Lead Generation Platform"
-            className="w-full h-auto"
-            loading="eager"
-          />
+          <div className="rounded-2xl overflow-hidden bg-card">
+            <img
+              src={heroImage}
+              alt="LeadMachine AI Dashboard - B2B Lead Generation Platform"
+              className="w-full h-auto"
+              loading="eager"
+            />
+          </div>
         </motion.div>
 
-        {/* Trusted by */}
-        <motion.p
+        {/* Trusted by logos */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-12 text-xs text-muted-foreground/60"
+          className="mt-14"
         >
-          {t("hero.trustedBy")} 500+ companies worldwide
-        </motion.p>
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground/50 mb-5">
+            {t("hero.trustedBy")} 500+ companies worldwide
+          </p>
+          <div className="flex items-center justify-center gap-8 flex-wrap opacity-30">
+            {["Acme Corp", "TechFlow", "DataBridge", "CloudScale", "NovaPay"].map((name) => (
+              <span key={name} className="font-display font-bold text-sm text-muted-foreground tracking-tight">{name}</span>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

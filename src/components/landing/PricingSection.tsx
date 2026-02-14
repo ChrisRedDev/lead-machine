@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -19,6 +19,7 @@ const PricingSection = () => {
       features: [t("pricing.starterF1"), t("pricing.starterF2"), t("pricing.starterF3"), t("pricing.starterF4")],
       cta: t("pricing.starterCta"),
       featured: false,
+      badge: "No credit card required",
     },
     {
       name: t("pricing.growth"),
@@ -28,6 +29,7 @@ const PricingSection = () => {
       features: [t("pricing.growthF1"), t("pricing.growthF2"), t("pricing.growthF3"), t("pricing.growthF4")],
       cta: t("pricing.growthCta"),
       featured: true,
+      badge: null,
     },
     {
       name: t("pricing.pro"),
@@ -37,6 +39,7 @@ const PricingSection = () => {
       features: [t("pricing.proF1"), t("pricing.proF2"), t("pricing.proF3"), t("pricing.proF4")],
       cta: t("pricing.proCta"),
       featured: false,
+      badge: null,
     },
   ];
 
@@ -64,7 +67,7 @@ const PricingSection = () => {
           </button>
           <span className={`text-sm ${annual ? "text-foreground" : "text-muted-foreground"}`}>
             {t("pricing.annual")}
-            <span className="ml-1.5 text-[11px] font-semibold text-primary">{t("pricing.save20")}</span>
+            <span className="ml-1.5 text-[11px] font-semibold text-success">{t("pricing.save20")}</span>
           </span>
         </div>
 
@@ -76,16 +79,21 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className={`rounded-2xl p-6 flex flex-col ${
+              className={`rounded-2xl p-6 flex flex-col transition-colors duration-200 ${
                 plan.featured
-                  ? "border-2 border-primary bg-card"
-                  : "border border-border bg-card"
+                  ? "border-2 border-primary bg-card hover:border-accent"
+                  : "border border-border bg-card hover:border-primary/40"
               }`}
             >
               {plan.featured && (
-                <span className="self-start text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary/10 text-primary mb-3">
-                  {t("pricing.popular")}
-                </span>
+                <div className="bg-gradient-primary rounded-xl p-3 -mx-1 -mt-1 mb-3">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
+                      {t("pricing.popular")}
+                    </span>
+                  </div>
+                </div>
               )}
               <h3 className="text-lg font-display font-bold">{plan.name}</h3>
               <div className="mt-3 mb-1">
@@ -96,14 +104,17 @@ const PricingSection = () => {
               <ul className="space-y-2.5 mb-8 flex-1">
                 {plan.features.map((f, j) => (
                   <li key={j} className="flex items-center gap-2 text-sm">
-                    <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <Check className="w-3.5 h-3.5 text-success shrink-0" />
                     <span className="text-muted-foreground">{f}</span>
                   </li>
                 ))}
               </ul>
+              {plan.badge && (
+                <p className="text-[11px] text-center text-success font-medium mb-3">{plan.badge}</p>
+              )}
               <Button
                 className={`w-full rounded-xl h-11 text-sm font-medium ${
-                  plan.featured ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-secondary hover:bg-secondary/80 text-foreground"
+                  plan.featured ? "bg-gradient-primary text-primary-foreground hover:opacity-90" : "bg-secondary hover:bg-secondary/80 text-foreground"
                 }`}
                 onClick={() => navigate("/login")}
               >

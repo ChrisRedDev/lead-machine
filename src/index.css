@@ -7,13 +7,13 @@
 
 @layer base {
   :root {
-    --background: 228 14% 8%;
+    --background: 228 14% 10%;
     --foreground: 210 40% 96%;
 
-    --card: 228 14% 11%;
+    --card: 228 14% 12%;
     --card-foreground: 210 40% 96%;
 
-    --popover: 228 14% 11%;
+    --popover: 228 14% 12%;
     --popover-foreground: 210 40% 96%;
 
     --primary: 234 89% 64%;
@@ -25,8 +25,17 @@
     --muted: 228 12% 14%;
     --muted-foreground: 215 16% 50%;
 
-    --accent: 234 89% 64%;
+    --accent: 260 70% 60%;
     --accent-foreground: 0 0% 100%;
+
+    --success: 152 60% 48%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --info: 190 80% 50%;
+    --info-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -65,6 +74,19 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-[hsl(234,89%,74%)];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-[hsl(260,70%,65%)];
+  }
+
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(234, 89%, 64%), hsl(260, 70%, 60%));
+  }
+
+  .bg-gradient-success {
+    background: linear-gradient(135deg, hsl(152, 60%, 48%), hsl(170, 70%, 45%));
+  }
+
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, hsl(228, 12%, 20%) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 }

@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Download, Trash2, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { FileSpreadsheet, Download, Trash2, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -25,7 +26,14 @@ interface Export {
   leads: Lead[];
   lead_count: number;
   created_at: string;
+  status: string;
 }
+
+const statusColors: Record<string, string> = {
+  completed: "bg-success/10 text-success",
+  processing: "bg-warning/10 text-warning",
+  failed: "bg-destructive/10 text-destructive",
+};
 
 const DashboardExports = () => {
   const { user } = useAuth();
@@ -33,6 +41,7 @@ const DashboardExports = () => {
   const [exports, setExports] = useState<Export[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedExport, setSelectedExport] = useState<Export | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (user) fetchExports();
@@ -67,6 +76,8 @@ const DashboardExports = () => {
       toast.success("Export deleted");
     }
   };
+
+  const filteredExports = exports.filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
 
   if (loading) return (<><DashboardHeader title={t("dashboard.previousExports")} /><div className="flex items-center justify-center py-20"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div></>);
 
@@ -120,19 +131,40 @@ const DashboardExports = () => {
             </div>
           </motion.div>
         ) : (
-          <div className="space-y-2">
-            {exports.map((exp) => (
-              <div key={exp.id} className="flex items-center justify-between border border-border/40 rounded-xl p-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => setSelectedExport(exp)}>
-                <div>
-                  <h4 className="text-[13px] font-medium">{exp.name}</h4>
-                  <p className="text-xs text-muted-foreground">{exp.lead_count} leads · {new Date(exp.created_at).toLocaleDateString()}</p>
+          <div>
+            {/* Search bar */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search exports..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 h-10 rounded-xl bg-secondary border-border text-sm"
+              />
+            </div>
+
+            <div className="space-y-2">
+              {filteredExports.map((exp) => (
+                <div key={exp.id} className="flex items-center justify-between border border-border/40 rounded-xl p-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => setSelectedExport(exp)}>
+                  <div className="flex items-center gap-3">
+                    <FileSpreadsheet className="w-4 h-4 text-primary shrink-0" />
+                    <div>
+                      <h4 className="text-[13px] font-medium">{exp.name}</h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${statusColors[exp.status] || statusColors.completed}`}>
+                          {exp.status || "completed"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{exp.lead_count} leads · {new Date(exp.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}><Download className="w-3.5 h-3.5" /></Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteExport(exp.id); }}><Trash2 className="w-3.5 h-3.5" /></Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}><Download className="w-3.5 h-3.5" /></Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteExport(exp.id); }}><Trash2 className="w-3.5 h-3.5" /></Button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </main>
