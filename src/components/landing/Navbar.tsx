@@ -31,7 +31,7 @@ const Navbar = () => {
           <Button variant="ghost" size="sm" className="hidden md:inline-flex text-[13px] h-9 rounded-xl" onClick={() => navigate("/login")}>
             {t("nav.login")}
           </Button>
-          <Button size="sm" className="hidden md:inline-flex text-[13px] h-9 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => navigate("/login")}>
+          <Button size="sm" className="hidden md:inline-flex text-[13px] h-9 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90" onClick={() => navigate("/login")}>
             {t("nav.getStarted")}
           </Button>
           <Button variant="ghost" size="sm" className="md:hidden h-9 w-9 p-0" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -49,7 +49,7 @@ const Navbar = () => {
             <Button variant="ghost" size="sm" className="flex-1 text-sm h-10 rounded-xl" onClick={() => { navigate("/login"); setMobileOpen(false); }}>
               {t("nav.login")}
             </Button>
-            <Button size="sm" className="flex-1 text-sm h-10 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { navigate("/login"); setMobileOpen(false); }}>
+            <Button size="sm" className="flex-1 text-sm h-10 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90" onClick={() => { navigate("/login"); setMobileOpen(false); }}>
               {t("nav.getStarted")}
             </Button>
           </div>

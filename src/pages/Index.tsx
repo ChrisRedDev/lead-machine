@@ -6,6 +6,7 @@ import FeaturesSection from "@/components/landing/FeaturesSection";
 import DemoPreview from "@/components/landing/DemoPreview";
 import SocialProof from "@/components/landing/SocialProof";
 import PricingSection from "@/components/landing/PricingSection";
+import CTABanner from "@/components/landing/CTABanner";
 import Footer from "@/components/landing/Footer";
 
 const Index = () => {
@@ -24,6 +25,7 @@ const Index = () => {
         <DemoPreview />
         <SocialProof />
         <PricingSection />
+        <CTABanner />
       </main>
       <Footer />
     </div>

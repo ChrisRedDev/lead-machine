@@ -1,15 +1,25 @@
+import { useEffect, useState } from "react";
 import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { t } = useTranslation();
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase.from("credits").select("balance").eq("user_id", user.id).single()
+        .then(({ data }) => { if (data) setCredits(data.balance); });
+    }
+  }, [user]);
 
   const navItems = [
     { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard" },
@@ -18,6 +28,8 @@ const DashboardSidebar = () => {
     { icon: CreditCard, label: t("dashboard.billing"), path: "/dashboard/billing" },
     { icon: Settings, label: t("dashboard.settings"), path: "/dashboard/settings" },
   ];
+
+  const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "??";
 
   return (
     <aside className="hidden lg:flex flex-col w-60 h-screen fixed left-0 top-0 border-r border-border/40 bg-background z-40">
@@ -40,14 +52,29 @@ const DashboardSidebar = () => {
                 active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
               )}
             >
-              <item.icon className="w-4 h-4" />
-              {item.label}
+              <div className="relative">
+                <item.icon className="w-4 h-4" />
+                {active && <span className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-primary" />}
+              </div>
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.path === "/dashboard/credits" && credits !== null && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                  {credits}
+                </span>
+              )}
             </button>
           );
         })}
       </nav>
 
-      <div className="p-3 border-t border-border/40 space-y-1">
+      <div className="p-3 border-t border-border/40 space-y-2">
+        {/* User info */}
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-[11px] font-bold text-accent">
+            {initials}
+          </div>
+          <p className="text-[11px] text-muted-foreground truncate flex-1">{user?.email}</p>
+        </div>
         <div className="px-3 py-1"><LanguageSwitcher /></div>
         <button onClick={signOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">
           <LogOut className="w-4 h-4" />

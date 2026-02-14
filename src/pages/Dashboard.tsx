@@ -6,8 +6,9 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Globe, FileText, MapPin, Building, Users, Loader2, Sparkles, Brain, Target, Lock } from "lucide-react";
+import { ArrowRight, Globe, FileText, MapPin, Building, Users, Loader2, Sparkles, Brain, Target, Lock, TrendingUp, BarChart3, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -32,11 +33,11 @@ const Dashboard = () => {
   });
 
   const statusMessages = [
-    { icon: Globe, text: t("generating.step1") },
-    { icon: Brain, text: t("generating.step2") },
-    { icon: Target, text: t("generating.step3") },
-    { icon: Sparkles, text: t("generating.step4") },
-    { icon: Sparkles, text: t("generating.step5") },
+    { icon: Globe, text: t("generating.step1"), color: "text-success" },
+    { icon: Brain, text: t("generating.step2"), color: "text-primary" },
+    { icon: Target, text: t("generating.step3"), color: "text-warning" },
+    { icon: Sparkles, text: t("generating.step4"), color: "text-accent" },
+    { icon: Sparkles, text: t("generating.step5"), color: "text-success" },
   ];
 
   const handleGenerate = async () => {
@@ -125,6 +126,29 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const getScoreColor = (score: number | string) => {
+    const n = typeof score === "string" ? parseInt(score) : score;
+    if (n >= 90) return "text-success font-semibold";
+    if (n >= 80) return "text-primary font-medium";
+    return "text-warning";
+  };
+
+  const avgScore = leads.length > 0
+    ? Math.round(leads.reduce((sum: number, l: any) => sum + (parseInt(l.score || l.ai_match || "85") || 85), 0) / leads.length)
+    : 0;
+
+  const topIndustry = leads.length > 0
+    ? Object.entries(leads.reduce((acc: Record<string, number>, l: any) => { acc[l.industry || "Other"] = (acc[l.industry || "Other"] || 0) + 1; return acc; }, {})).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || "N/A"
+    : "N/A";
+
+  const fieldIcons = [
+    { icon: Globe, color: "text-success" },
+    { icon: FileText, color: "text-primary" },
+    { icon: MapPin, color: "text-destructive" },
+    { icon: Building, color: "text-accent" },
+    { icon: Users, color: "text-warning" },
+  ];
+
   return (
     <>
       <DashboardHeader title={t("generate.title")} />
@@ -143,7 +167,7 @@ const Dashboard = () => {
                     {t("generate.companyUrl")} <span className="text-destructive text-xs">*</span>
                   </label>
                   <div className="relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Globe className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${fieldIcons[0].color}`} />
                     <Input placeholder={t("generate.companyUrlPlaceholder")} value={form.companyUrl} onChange={(e) => setForm({ ...form, companyUrl: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                   </div>
                 </div>
@@ -153,7 +177,7 @@ const Dashboard = () => {
                     {t("generate.description")} <span className="text-destructive text-xs">*</span>
                   </label>
                   <div className="relative">
-                    <FileText className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <FileText className={`absolute left-3 top-3 w-4 h-4 ${fieldIcons[1].color}`} />
                     <Textarea placeholder={t("generate.descriptionPlaceholder")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="pl-10 min-h-[80px] rounded-xl bg-secondary border-border text-sm resize-none" />
                   </div>
                 </div>
@@ -162,14 +186,14 @@ const Dashboard = () => {
                   <div>
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetLocation")}</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${fieldIcons[2].color}`} />
                       <Input placeholder={t("generate.targetLocationPlaceholder")} value={form.targetLocation} onChange={(e) => setForm({ ...form, targetLocation: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
                   </div>
                   <div>
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetIndustry")}</label>
                     <div className="relative">
-                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Building className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${fieldIcons[3].color}`} />
                       <Input placeholder={t("generate.targetIndustryPlaceholder")} value={form.targetIndustry} onChange={(e) => setForm({ ...form, targetIndustry: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
                   </div>
@@ -178,13 +202,13 @@ const Dashboard = () => {
                 <div>
                   <label className="text-[13px] font-medium mb-1.5 block">{t("generate.idealClient")}</label>
                   <div className="relative">
-                    <Users className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                    <Users className={`absolute left-3 top-3 w-4 h-4 ${fieldIcons[4].color}`} />
                     <Textarea placeholder={t("generate.idealClientPlaceholder")} value={form.idealClient} onChange={(e) => setForm({ ...form, idealClient: e.target.value })} className="pl-10 min-h-[70px] rounded-xl bg-secondary border-border text-sm resize-none" />
                   </div>
                 </div>
               </div>
 
-              <Button onClick={handleGenerate} disabled={!form.companyUrl || !form.description} className="w-full h-12 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button onClick={handleGenerate} disabled={!form.companyUrl || !form.description} className="w-full h-12 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90">
                 {t("generate.cta")}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -193,7 +217,7 @@ const Dashboard = () => {
 
           {step === "generating" && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
-              <div className="text-center">
+              <div className="text-center max-w-sm w-full px-4">
                 <div className="mb-10">
                   <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center mx-auto">
                     <Loader2 className="w-7 h-7 text-primary animate-spin" />
@@ -206,28 +230,53 @@ const Dashboard = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground justify-center"
+                    className="flex items-center gap-2.5 text-sm text-muted-foreground justify-center mb-6"
                   >
                     {(() => {
                       const Icon = statusMessages[currentStatus].icon;
-                      return <Icon className="w-4 h-4 text-primary" />;
+                      return <Icon className={`w-4 h-4 ${statusMessages[currentStatus].color}`} />;
                     })()}
                     <span>{statusMessages[currentStatus].text}</span>
                   </motion.div>
                 </AnimatePresence>
 
-                <div className="flex gap-1.5 mt-8 justify-center">
-                  {statusMessages.map((_, i) => (
-                    <div key={i} className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= currentStatus ? "bg-primary" : "bg-secondary"}`} />
-                  ))}
-                </div>
+                {/* Progress bar */}
+                <Progress value={((currentStatus + 1) / statusMessages.length) * 100} className="h-2 bg-secondary" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {Math.round(((currentStatus + 1) / statusMessages.length) * 100)}%
+                </p>
               </div>
             </motion.div>
           )}
 
           {step === "results" && (
             <motion.div key="results" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="flex items-center justify-between mb-6">
+              {/* Summary cards */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Total Leads</span>
+                  </div>
+                  <p className="text-2xl font-bold font-display">{leads.length}</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <BarChart3 className="w-4 h-4 text-success" />
+                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Avg Score</span>
+                  </div>
+                  <p className="text-2xl font-bold font-display">{avgScore}%</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Briefcase className="w-4 h-4 text-warning" />
+                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Top Industry</span>
+                  </div>
+                  <p className="text-sm font-semibold font-display truncate">{topIndustry}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xl font-display font-bold tracking-tight">{t("results.leadsFound")}: {leads.length}</h2>
                   <p className="text-sm text-muted-foreground">
@@ -243,7 +292,7 @@ const Dashboard = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-border bg-secondary">
+                      <tr className="border-b border-border bg-secondary/80">
                         <th className="text-left font-medium p-3">{t("results.company")}</th>
                         <th className="text-left font-medium p-3">{t("results.contact")}</th>
                         <th className="text-left font-medium p-3">{t("results.role")}</th>
@@ -255,7 +304,12 @@ const Dashboard = () => {
                     <tbody>
                       {leads.slice(0, FREE_LEADS).map((lead: any, i: number) => (
                         <tr key={i} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                          <td className="p-3 font-medium">{lead.company_name}</td>
+                          <td className="p-3 font-medium">
+                            <div className="flex items-center gap-2">
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-success/10 text-success">New</span>
+                              {lead.company_name}
+                            </div>
+                          </td>
                           <td className="p-3 text-muted-foreground">{lead.contact_person}</td>
                           <td className="p-3 text-muted-foreground">{lead.role}</td>
                           <td className="p-3 text-muted-foreground">{lead.email}</td>
@@ -300,7 +354,7 @@ const Dashboard = () => {
                       <p className="text-xs text-muted-foreground mb-1">{t("results.unlockSubtitle")}</p>
                       <p className="text-xs text-muted-foreground/70 mb-5 italic">{t("results.unlockOnlyVisible")}</p>
                       <Button
-                        className="h-11 px-8 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="h-11 px-8 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90"
                         onClick={() => {
                           toast.info("Stripe checkout will be integrated soon. Unlocking for preview...");
                           setUnlocked(true);

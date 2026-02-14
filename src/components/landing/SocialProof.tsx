@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, Quote } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+const avatarColors = [
+  "bg-primary/20 text-primary",
+  "bg-success/20 text-success",
+  "bg-warning/20 text-warning",
+];
 
 const testimonials = [
   { nameKey: "socialProof.t1Name", roleKey: "socialProof.t1Role", quoteKey: "socialProof.t1Quote", avatar: "JM", stars: 5 },
@@ -32,16 +38,17 @@ const SocialProof = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-2xl border border-border bg-card p-6"
+              className="rounded-2xl border border-border bg-card p-6 relative"
             >
+              <Quote className="absolute top-4 right-4 w-8 h-8 text-muted-foreground/10" />
               <div className="flex gap-0.5 mb-4">
                 {Array.from({ length: item.stars }).map((_, j) => (
-                  <Star key={j} className="w-4 h-4 fill-primary text-primary" />
+                  <Star key={j} className="w-4 h-4 fill-warning text-warning" />
                 ))}
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed mb-5 italic">"{t(item.quoteKey)}"</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-primary">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${avatarColors[i]}`}>
                   {item.avatar}
                 </div>
                 <div>
