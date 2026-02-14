@@ -38,9 +38,9 @@ const SocialProof = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-2xl border border-border bg-card p-6 relative"
+              className="rounded-2xl border border-border bg-card p-6 relative hover-lift group"
             >
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-muted-foreground/10" />
+              <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/10 group-hover:text-primary/20 transition-colors" />
               <div className="flex gap-0.5 mb-4">
                 {Array.from({ length: item.stars }).map((_, j) => (
                   <Star key={j} className="w-4 h-4 fill-warning text-warning" />

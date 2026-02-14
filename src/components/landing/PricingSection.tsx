@@ -23,7 +23,7 @@ const PricingSection = () => {
     },
     {
       name: t("pricing.growth"),
-      price: annual ? "$103" : t("pricing.growthPrice"),
+      price: annual ? "$63" : "$79",
       per: t("pricing.growthPer"),
       credits: t("pricing.growthCredits"),
       features: [t("pricing.growthF1"), t("pricing.growthF2"), t("pricing.growthF3"), t("pricing.growthF4")],
@@ -33,7 +33,7 @@ const PricingSection = () => {
     },
     {
       name: t("pricing.pro"),
-      price: annual ? "$399" : t("pricing.proPrice"),
+      price: annual ? "$239" : "$299",
       per: t("pricing.proPer"),
       credits: t("pricing.proCredits"),
       features: [t("pricing.proF1"), t("pricing.proF2"), t("pricing.proF3"), t("pricing.proF4")],
@@ -79,21 +79,25 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
-              className={`rounded-2xl p-6 flex flex-col transition-colors duration-200 ${
+              className={`rounded-2xl p-6 flex flex-col transition-all duration-300 hover-lift ${
                 plan.featured
-                  ? "border-2 border-primary bg-card hover:border-accent"
+                  ? "border-2 border-primary bg-card relative overflow-hidden"
                   : "border border-border bg-card hover:border-primary/40"
               }`}
             >
               {plan.featured && (
-                <div className="bg-gradient-primary rounded-xl p-3 -mx-1 -mt-1 mb-3">
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
-                      {t("pricing.popular")}
-                    </span>
+                <>
+                  {/* Animated gradient border glow */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+                  <div className="relative bg-gradient-primary rounded-xl p-3 -mx-1 -mt-1 mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-primary-foreground">
+                        {t("pricing.popular")}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
               <h3 className="text-lg font-display font-bold">{plan.name}</h3>
               <div className="mt-3 mb-1">
@@ -103,18 +107,27 @@ const PricingSection = () => {
               <p className="text-xs text-muted-foreground mb-6">{plan.credits}</p>
               <ul className="space-y-2.5 mb-8 flex-1">
                 {plan.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-2 text-sm">
+                  <motion.li
+                    key={j}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08 + j * 0.05 }}
+                    className="flex items-center gap-2 text-sm"
+                  >
                     <Check className="w-3.5 h-3.5 text-success shrink-0" />
                     <span className="text-muted-foreground">{f}</span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
               {plan.badge && (
                 <p className="text-[11px] text-center text-success font-medium mb-3">{plan.badge}</p>
               )}
               <Button
-                className={`w-full rounded-xl h-11 text-sm font-medium ${
-                  plan.featured ? "bg-gradient-primary text-primary-foreground hover:opacity-90" : "bg-secondary hover:bg-secondary/80 text-foreground"
+                className={`w-full rounded-xl h-11 text-sm font-medium transition-all duration-300 ${
+                  plan.featured
+                    ? "bg-gradient-primary text-primary-foreground hover:opacity-90 hover:shadow-[0_8px_30px_-4px_hsl(234,89%,64%,0.4)]"
+                    : "bg-secondary hover:bg-secondary/80 text-foreground"
                 }`}
                 onClick={() => navigate("/login")}
               >

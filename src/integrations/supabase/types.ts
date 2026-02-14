@@ -111,8 +111,11 @@ export type Database = {
           company_url: string | null
           created_at: string
           email: string | null
+          facebook_url: string | null
           id: string
           ideal_client_description: string | null
+          instagram_url: string | null
+          linkedin_url: string | null
           target_industry: string | null
           target_location: string | null
           updated_at: string
@@ -124,8 +127,11 @@ export type Database = {
           company_url?: string | null
           created_at?: string
           email?: string | null
+          facebook_url?: string | null
           id?: string
           ideal_client_description?: string | null
+          instagram_url?: string | null
+          linkedin_url?: string | null
           target_industry?: string | null
           target_location?: string | null
           updated_at?: string
@@ -137,8 +143,11 @@ export type Database = {
           company_url?: string | null
           created_at?: string
           email?: string | null
+          facebook_url?: string | null
           id?: string
           ideal_client_description?: string | null
+          instagram_url?: string | null
+          linkedin_url?: string | null
           target_industry?: string | null
           target_location?: string | null
           updated_at?: string

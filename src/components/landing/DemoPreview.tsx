@@ -29,7 +29,15 @@ const blurredLeads = Array.from({ length: 6 }, (_, i) => ({
 const getScoreColor = (score: number) => {
   if (score >= 90) return "text-success font-semibold";
   if (score >= 85) return "text-primary font-medium";
+  if (score >= 80) return "text-warning font-medium";
   return "text-muted-foreground";
+};
+
+const getScoreBg = (score: number) => {
+  if (score >= 90) return "bg-success/10";
+  if (score >= 85) return "bg-primary/10";
+  if (score >= 80) return "bg-warning/10";
+  return "bg-muted/10";
 };
 
 const getStatusDot = (score: number) => {
@@ -59,7 +67,7 @@ const DemoPreview = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="border border-border rounded-2xl overflow-hidden"
+          className="border border-border rounded-2xl overflow-hidden glass-card"
         >
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
@@ -76,8 +84,12 @@ const DemoPreview = () => {
               </thead>
               <tbody>
                 {sampleLeads.map((lead, i) => (
-                  <tr
+                  <motion.tr
                     key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
                     className={`border-b border-border hover:bg-secondary/50 transition-colors ${i % 2 === 0 ? "" : "bg-muted/20"}`}
                   >
                     <td className="p-3 text-muted-foreground/50 text-xs">{i + 1}</td>
@@ -92,9 +104,11 @@ const DemoPreview = () => {
                     <td className="p-3 text-muted-foreground">{lead.email}</td>
                     <td className="p-3 text-muted-foreground">{lead.industry}</td>
                     <td className="p-3">
-                      <span className={getScoreColor(lead.score)}>{lead.score}%</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] ${getScoreColor(lead.score)} ${getScoreBg(lead.score)}`}>
+                        {lead.score}%
+                      </span>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
                 {blurredLeads.map((lead, i) => (
                   <tr key={`blur-${i}`} className="border-b border-border">
@@ -115,13 +129,13 @@ const DemoPreview = () => {
           <div className="relative">
             <div className="absolute -top-32 inset-x-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
             <div className="bg-background border-t border-border p-8 text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse-soft">
                 <Lock className="w-5 h-5 text-primary" />
               </div>
               <p className="text-sm font-medium mb-1">{t("demo.locked", { count: 90 })}</p>
               <p className="text-xs text-muted-foreground mb-5">"{t("results.unlockOnlyVisible")}"</p>
               <Button
-                className="h-11 px-8 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                className="h-11 px-8 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-300 hover:shadow-[0_8px_30px_-4px_hsl(234,89%,64%,0.4)]"
                 onClick={() => navigate("/login")}
               >
                 {t("demo.unlock")}

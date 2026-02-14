@@ -17,6 +17,7 @@ import DashboardExports from "./pages/DashboardExports";
 import DashboardCredits from "./pages/DashboardCredits";
 import DashboardBilling from "./pages/DashboardBilling";
 import DashboardSettings from "./pages/DashboardSettings";
+import DashboardResearch from "./pages/DashboardResearch";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                 }
               >
                 <Route index element={<Dashboard />} />
+                <Route path="research" element={<DashboardResearch />} />
                 <Route path="exports" element={<DashboardExports />} />
                 <Route path="credits" element={<DashboardCredits />} />
                 <Route path="billing" element={<DashboardBilling />} />
