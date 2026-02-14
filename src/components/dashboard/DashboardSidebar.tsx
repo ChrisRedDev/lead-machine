@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain } from "lucide-react";
+import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Users, Plug } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,8 +22,13 @@ const DashboardSidebar = () => {
   }, [user]);
 
   const navItems = [
-    { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard" },
+    { icon: BarChart3, label: "Overview", path: "/dashboard" },
+    { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard/generate" },
     { icon: Brain, label: "AI Research", path: "/dashboard/research" },
+    { icon: BarChart3, label: "Analytics", path: "/dashboard/analytics" },
+    { icon: Mail, label: "Campaigns", path: "/dashboard/campaigns" },
+    { icon: Users, label: "Team", path: "/dashboard/team" },
+    { icon: Plug, label: "Integrations", path: "/dashboard/integrations" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
     { icon: Coins, label: t("dashboard.credits"), path: "/dashboard/credits" },
     { icon: CreditCard, label: t("dashboard.billing"), path: "/dashboard/billing" },

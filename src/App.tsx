@@ -13,11 +13,16 @@ import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
+import DashboardHome from "./pages/DashboardHome";
 import DashboardExports from "./pages/DashboardExports";
 import DashboardCredits from "./pages/DashboardCredits";
 import DashboardBilling from "./pages/DashboardBilling";
 import DashboardSettings from "./pages/DashboardSettings";
 import DashboardResearch from "./pages/DashboardResearch";
+import DashboardAnalytics from "./pages/DashboardAnalytics";
+import DashboardCampaigns from "./pages/DashboardCampaigns";
+import DashboardTeam from "./pages/DashboardTeam";
+import DashboardIntegrations from "./pages/DashboardIntegrations";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -44,8 +49,13 @@ const App = () => (
                   </ProtectedRoute>
                 }
               >
-                <Route index element={<Dashboard />} />
+                <Route index element={<DashboardHome />} />
+                <Route path="generate" element={<Dashboard />} />
                 <Route path="research" element={<DashboardResearch />} />
+                <Route path="analytics" element={<DashboardAnalytics />} />
+                <Route path="campaigns" element={<DashboardCampaigns />} />
+                <Route path="team" element={<DashboardTeam />} />
+                <Route path="integrations" element={<DashboardIntegrations />} />
                 <Route path="exports" element={<DashboardExports />} />
                 <Route path="credits" element={<DashboardCredits />} />
                 <Route path="billing" element={<DashboardBilling />} />
