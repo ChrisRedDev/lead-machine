@@ -7,13 +7,12 @@ const Footer = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="border-t border-border/40 py-14 px-4">
+    <footer className="border-t border-border py-14 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-          {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center">
                 <Zap className="w-3 h-3 text-primary-foreground" />
               </div>
               <span className="font-display font-bold text-sm tracking-tight">LeadMachine AI</span>
@@ -22,7 +21,6 @@ const Footer = () => {
             <LanguageSwitcher />
           </div>
 
-          {/* Product */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">{t("footer.product")}</h4>
             <ul className="space-y-2">
@@ -32,7 +30,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">{t("footer.company")}</h4>
             <ul className="space-y-2">
@@ -40,7 +37,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">{t("footer.legal")}</h4>
             <ul className="space-y-2">
@@ -50,7 +46,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-border/30 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[11px] text-muted-foreground">© 2026 LeadMachine AI. {t("footer.rights")}</p>
           <div className="flex items-center gap-4">
             {["Twitter", "LinkedIn", "GitHub"].map((social) => (

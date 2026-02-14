@@ -22,7 +22,7 @@ const DashboardSidebar = () => {
   return (
     <aside className="hidden lg:flex flex-col w-60 h-screen fixed left-0 top-0 border-r border-border/40 bg-background z-40">
       <div className="p-5 flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
           <Zap className="w-4 h-4 text-primary-foreground" />
         </div>
         <span className="font-display font-bold text-[15px] tracking-tight">LeadMachine AI</span>
