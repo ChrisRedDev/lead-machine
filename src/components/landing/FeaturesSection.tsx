@@ -6,14 +6,14 @@ const FeaturesSection = () => {
   const { t } = useTranslation();
 
   const steps = [
-    { icon: Globe, titleKey: "features.step1Title", descKey: "features.step1Desc", color: "from-[hsl(var(--neon-blue))] to-[hsl(var(--primary))]" },
-    { icon: Brain, titleKey: "features.step2Title", descKey: "features.step2Desc", color: "from-[hsl(var(--primary))] to-[hsl(var(--neon-purple))]" },
-    { icon: Target, titleKey: "features.step3Title", descKey: "features.step3Desc", color: "from-[hsl(var(--neon-purple))] to-[hsl(var(--neon-pink))]" },
-    { icon: Sparkles, titleKey: "features.step4Title", descKey: "features.step4Desc", color: "from-[hsl(var(--neon-pink))] to-[hsl(var(--neon-blue))]" },
+    { icon: Globe, titleKey: "features.step1Title", descKey: "features.step1Desc" },
+    { icon: Brain, titleKey: "features.step2Title", descKey: "features.step2Desc" },
+    { icon: Target, titleKey: "features.step3Title", descKey: "features.step3Desc" },
+    { icon: Sparkles, titleKey: "features.step4Title", descKey: "features.step4Desc" },
   ];
 
   return (
-    <section id="features" className="py-28 px-4 relative">
+    <section id="features" className="py-28 px-4">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -25,22 +25,19 @@ const FeaturesSection = () => {
           <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">{t("features.subtitle")}</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-5 relative">
-          {/* Connector line (desktop) */}
-          <div className="hidden md:block absolute left-1/2 top-8 bottom-8 w-px bg-gradient-to-b from-primary/20 via-accent/20 to-primary/20" />
-
+        <div className="grid md:grid-cols-2 gap-5">
           {steps.map((step, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group relative rounded-2xl border border-border/50 bg-card/40 p-6 hover:bg-card/70 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5"
+              transition={{ delay: i * 0.08 }}
+              className="rounded-2xl border border-border bg-card p-6 hover:bg-secondary/50 transition-colors duration-200"
             >
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shrink-0 shadow-lg shadow-primary/10 group-hover:shadow-primary/20 transition-shadow`}>
-                  <step.icon className="w-5 h-5 text-primary-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                  <step.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Step {i + 1}</span>
@@ -48,8 +45,6 @@ const FeaturesSection = () => {
                   <p className="text-sm text-muted-foreground leading-relaxed">{t(step.descKey)}</p>
                 </div>
               </div>
-              {/* Glow effect on hover */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/0 to-accent/0 group-hover:from-primary/3 group-hover:to-accent/3 transition-all duration-300 pointer-events-none" />
             </motion.div>
           ))}
         </div>

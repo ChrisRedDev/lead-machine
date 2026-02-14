@@ -36,9 +36,9 @@ const StatsCounter = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="text-center"
+              className={`text-center ${i < stats.length - 1 ? "md:border-r md:border-border" : ""}`}
             >
-              <div className="text-3xl md:text-4xl font-bold font-display gradient-text mb-1">
+              <div className="text-3xl md:text-4xl font-bold font-display text-foreground mb-1">
                 <AnimatedNumber value={stat.value} suffix={stat.suffix} />
               </div>
               <p className="text-xs md:text-sm text-muted-foreground">{t(stat.labelKey)}</p>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Globe, FileText, MapPin, Building, Users, Loader2, Sparkles, Brain, Target, CheckCircle, Lock } from "lucide-react";
+import { ArrowRight, Globe, FileText, MapPin, Building, Users, Loader2, Sparkles, Brain, Target, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -81,7 +81,6 @@ const Dashboard = () => {
       const generatedLeads = data?.leads || [];
       setLeads(generatedLeads);
 
-      // Save export
       await supabase.from("lead_exports").insert({
         user_id: user!.id,
         name: `Leads for ${form.companyUrl}`,
@@ -145,7 +144,7 @@ const Dashboard = () => {
                   </label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input placeholder={t("generate.companyUrlPlaceholder")} value={form.companyUrl} onChange={(e) => setForm({ ...form, companyUrl: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary/30 border-border/50 text-sm" />
+                    <Input placeholder={t("generate.companyUrlPlaceholder")} value={form.companyUrl} onChange={(e) => setForm({ ...form, companyUrl: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                   </div>
                 </div>
 
@@ -155,7 +154,7 @@ const Dashboard = () => {
                   </label>
                   <div className="relative">
                     <FileText className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Textarea placeholder={t("generate.descriptionPlaceholder")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="pl-10 min-h-[80px] rounded-xl bg-secondary/30 border-border/50 text-sm resize-none" />
+                    <Textarea placeholder={t("generate.descriptionPlaceholder")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="pl-10 min-h-[80px] rounded-xl bg-secondary border-border text-sm resize-none" />
                   </div>
                 </div>
 
@@ -164,14 +163,14 @@ const Dashboard = () => {
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetLocation")}</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input placeholder={t("generate.targetLocationPlaceholder")} value={form.targetLocation} onChange={(e) => setForm({ ...form, targetLocation: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary/30 border-border/50 text-sm" />
+                      <Input placeholder={t("generate.targetLocationPlaceholder")} value={form.targetLocation} onChange={(e) => setForm({ ...form, targetLocation: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
                   </div>
                   <div>
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetIndustry")}</label>
                     <div className="relative">
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input placeholder={t("generate.targetIndustryPlaceholder")} value={form.targetIndustry} onChange={(e) => setForm({ ...form, targetIndustry: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary/30 border-border/50 text-sm" />
+                      <Input placeholder={t("generate.targetIndustryPlaceholder")} value={form.targetIndustry} onChange={(e) => setForm({ ...form, targetIndustry: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
                   </div>
                 </div>
@@ -180,12 +179,12 @@ const Dashboard = () => {
                   <label className="text-[13px] font-medium mb-1.5 block">{t("generate.idealClient")}</label>
                   <div className="relative">
                     <Users className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                    <Textarea placeholder={t("generate.idealClientPlaceholder")} value={form.idealClient} onChange={(e) => setForm({ ...form, idealClient: e.target.value })} className="pl-10 min-h-[70px] rounded-xl bg-secondary/30 border-border/50 text-sm resize-none" />
+                    <Textarea placeholder={t("generate.idealClientPlaceholder")} value={form.idealClient} onChange={(e) => setForm({ ...form, idealClient: e.target.value })} className="pl-10 min-h-[70px] rounded-xl bg-secondary border-border text-sm resize-none" />
                   </div>
                 </div>
               </div>
 
-              <Button onClick={handleGenerate} disabled={!form.companyUrl || !form.description} className="w-full h-12 rounded-xl text-sm font-medium bg-foreground text-background hover:bg-foreground/90">
+              <Button onClick={handleGenerate} disabled={!form.companyUrl || !form.description} className="w-full h-12 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90">
                 {t("generate.cta")}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
@@ -194,27 +193,19 @@ const Dashboard = () => {
 
           {step === "generating" && (
             <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
-              {/* Cinematic background */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-glow" />
-                <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-accent/8 rounded-full blur-[100px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-neon-purple/6 rounded-full blur-[80px] animate-pulse-glow" style={{ animationDelay: "3s" }} />
-              </div>
-
-              <div className="relative z-10 text-center">
-                <div className="relative mb-10">
-                  <div className="w-20 h-20 rounded-full border border-primary/20 flex items-center justify-center mx-auto">
-                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <div className="text-center">
+                <div className="mb-10">
+                  <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center mx-auto">
+                    <Loader2 className="w-7 h-7 text-primary animate-spin" />
                   </div>
-                  <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-primary/5 animate-ping" style={{ animationDuration: "2s" }} />
                 </div>
 
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStatus}
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -12 }}
+                    exit={{ opacity: 0, y: -10 }}
                     className="flex items-center gap-2.5 text-sm text-muted-foreground justify-center"
                   >
                     {(() => {
@@ -227,7 +218,7 @@ const Dashboard = () => {
 
                 <div className="flex gap-1.5 mt-8 justify-center">
                   {statusMessages.map((_, i) => (
-                    <div key={i} className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= currentStatus ? "bg-primary scale-100" : "bg-secondary scale-75"}`} />
+                    <div key={i} className={`w-2 h-2 rounded-full transition-all duration-500 ${i <= currentStatus ? "bg-primary" : "bg-secondary"}`} />
                   ))}
                 </div>
               </div>
@@ -236,7 +227,6 @@ const Dashboard = () => {
 
           {step === "results" && (
             <motion.div key="results" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-              {/* Counter */}
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-xl font-display font-bold tracking-tight">{t("results.leadsFound")}: {leads.length}</h2>
@@ -249,12 +239,11 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              {/* Lead table */}
-              <div className="border border-border/50 rounded-2xl overflow-hidden">
+              <div className="border border-border rounded-2xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-[13px]">
                     <thead>
-                      <tr className="border-b border-border/40 bg-secondary/30">
+                      <tr className="border-b border-border bg-secondary">
                         <th className="text-left font-medium p-3">{t("results.company")}</th>
                         <th className="text-left font-medium p-3">{t("results.contact")}</th>
                         <th className="text-left font-medium p-3">{t("results.role")}</th>
@@ -265,7 +254,7 @@ const Dashboard = () => {
                     </thead>
                     <tbody>
                       {leads.slice(0, FREE_LEADS).map((lead: any, i: number) => (
-                        <tr key={i} className="border-b border-border/30 hover:bg-secondary/20 transition-colors">
+                        <tr key={i} className="border-b border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{lead.company_name}</td>
                           <td className="p-3 text-muted-foreground">{lead.contact_person}</td>
                           <td className="p-3 text-muted-foreground">{lead.role}</td>
@@ -275,7 +264,7 @@ const Dashboard = () => {
                         </tr>
                       ))}
                       {!unlocked && leads.length > FREE_LEADS && leads.slice(FREE_LEADS).map((lead: any, i: number) => (
-                        <tr key={`locked-${i}`} className="border-b border-border/30">
+                        <tr key={`locked-${i}`} className="border-b border-border">
                           <td className="p-3 blur-[6px] select-none text-muted-foreground/60">{lead.company_name || "████████"}</td>
                           <td className="p-3 blur-[6px] select-none text-muted-foreground/40">{lead.contact_person || "████ ████"}</td>
                           <td className="p-3 blur-[6px] select-none text-muted-foreground/40">{lead.role || "██ ████"}</td>
@@ -285,7 +274,7 @@ const Dashboard = () => {
                         </tr>
                       ))}
                       {unlocked && leads.slice(FREE_LEADS).map((lead: any, i: number) => (
-                        <tr key={`unlocked-${i}`} className="border-b border-border/30 hover:bg-secondary/20 transition-colors">
+                        <tr key={`unlocked-${i}`} className="border-b border-border hover:bg-secondary/50 transition-colors">
                           <td className="p-3 font-medium">{lead.company_name}</td>
                           <td className="p-3 text-muted-foreground">{lead.contact_person}</td>
                           <td className="p-3 text-muted-foreground">{lead.role}</td>
@@ -298,12 +287,11 @@ const Dashboard = () => {
                   </table>
                 </div>
 
-                {/* Unlock overlay */}
                 {!unlocked && leads.length > FREE_LEADS && (
                   <div className="relative">
                     <div className="absolute -top-24 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
-                    <div className="bg-background border-t border-border/40 p-8 text-center">
-                      <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <div className="bg-background border-t border-border p-8 text-center">
+                      <div className="w-12 h-12 mx-auto rounded-full bg-secondary flex items-center justify-center mb-4">
                         <Lock className="w-5 h-5 text-primary" />
                       </div>
                       <h3 className="text-[15px] font-display font-bold mb-1">
@@ -312,9 +300,8 @@ const Dashboard = () => {
                       <p className="text-xs text-muted-foreground mb-1">{t("results.unlockSubtitle")}</p>
                       <p className="text-xs text-muted-foreground/70 mb-5 italic">{t("results.unlockOnlyVisible")}</p>
                       <Button
-                        className="h-11 px-8 rounded-xl text-sm font-medium bg-foreground text-background hover:bg-foreground/90"
+                        className="h-11 px-8 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
                         onClick={() => {
-                          // TODO: Stripe checkout
                           toast.info("Stripe checkout will be integrated soon. Unlocking for preview...");
                           setUnlocked(true);
                         }}
