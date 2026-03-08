@@ -721,6 +721,15 @@ const Dashboard = () => {
 
                         {/* Quick actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* Write cold email button */}
+                          <button
+                            className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                            title="Write cold email with AI"
+                            onClick={() => setEmailComposeLead(lead)}
+                          >
+                            <Pen className="w-3 h-3" />
+                            <span className="text-[11px] font-medium hidden sm:inline">Write</span>
+                          </button>
                           {lead.email && (
                             <button
                               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-secondary transition-colors"
