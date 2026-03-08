@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
@@ -31,46 +32,48 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<DashboardHome />} />
-                <Route path="generate" element={<Dashboard />} />
-                <Route path="research" element={<DashboardResearch />} />
-                <Route path="analytics" element={<DashboardAnalytics />} />
-                <Route path="campaigns" element={<DashboardCampaigns />} />
-                <Route path="team" element={<DashboardTeam />} />
-                <Route path="integrations" element={<DashboardIntegrations />} />
-                <Route path="pipeline" element={<DashboardPipeline />} />
-                <Route path="exports" element={<DashboardExports />} />
-                <Route path="credits" element={<DashboardCredits />} />
-                <Route path="billing" element={<DashboardBilling />} />
-                <Route path="settings" element={<DashboardSettings />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<DashboardHome />} />
+                  <Route path="generate" element={<Dashboard />} />
+                  <Route path="research" element={<DashboardResearch />} />
+                  <Route path="analytics" element={<DashboardAnalytics />} />
+                  <Route path="campaigns" element={<DashboardCampaigns />} />
+                  <Route path="team" element={<DashboardTeam />} />
+                  <Route path="integrations" element={<DashboardIntegrations />} />
+                  <Route path="pipeline" element={<DashboardPipeline />} />
+                  <Route path="exports" element={<DashboardExports />} />
+                  <Route path="credits" element={<DashboardCredits />} />
+                  <Route path="billing" element={<DashboardBilling />} />
+                  <Route path="settings" element={<DashboardSettings />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </HelmetProvider>
 );
 
