@@ -831,9 +831,9 @@ const Dashboard = () => {
                   return (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
+                      transition={{ delay: i * 0.06, duration: 0.3 }}
                       className="border border-border rounded-xl bg-card overflow-hidden hover-lift cursor-pointer"
                       onClick={() => setExpandedLead(isExpanded ? null : i)}
                     >
