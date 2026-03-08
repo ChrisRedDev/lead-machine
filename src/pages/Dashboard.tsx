@@ -443,6 +443,29 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
+  const addToPipeline = async (lead: any) => {
+    if (!user) return;
+    const { error } = await supabase.from("lead_pipeline").insert({
+      user_id: user.id,
+      company_name: lead.company_name,
+      contact_name: lead.contact_person,
+      role: lead.role,
+      email: lead.email,
+      industry: lead.industry,
+      fit_reason: lead.fit_reason,
+      score: parseInt(lead.score || lead.ai_match || "85") || 85,
+      stage: "new",
+      lead_index: Math.floor(Math.random() * 10000),
+    } as any);
+    if (error) {
+      toast.error("Failed to add to pipeline.");
+    } else {
+      toast.success(`${lead.company_name} added to Pipeline!`, {
+        action: { label: "View Pipeline", onClick: () => navigate("/dashboard/pipeline") },
+      });
+    }
+  };
+
   const copyAllEmails = () => {
     const visibleLeads = unlocked ? leads : leads.slice(0, FREE_LEADS);
     const emails = visibleLeads.map((l: any) => l.email).filter(Boolean).join(", ");
