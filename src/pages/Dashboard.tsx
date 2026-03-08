@@ -772,25 +772,56 @@ const Dashboard = () => {
                 ))}
               </div>
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                 <div>
                   <h2 className="text-xl font-display font-bold tracking-tight">{t("results.leadsFound")}: {leads.length}</h2>
                   <p className="text-sm text-muted-foreground">
                     {unlocked ? `${leads.length} leads unlocked` : `${Math.min(FREE_LEADS, leads.length)} ${t("results.free")} · ${Math.max(0, leads.length - FREE_LEADS)} locked`}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={copyAllEmails}>
                     <Mail className="w-3.5 h-3.5 mr-1" /> Emails
                   </Button>
                   <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={downloadJSON}>
                     JSON
                   </Button>
-                  <Button size="sm" className="h-9 rounded-xl text-[13px]" onClick={downloadCSV}>
+                  <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={downloadCSV}>
                     <Download className="w-3.5 h-3.5 mr-1" /> CSV
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-9 rounded-xl text-[13px] bg-gradient-primary text-primary-foreground hover:opacity-90"
+                    onClick={() => { setStep("form"); setLeads([]); setUnlocked(false); setExpandedLead(null); }}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> New Search
                   </Button>
                 </div>
               </div>
+
+              {/* Post-generation tip card if no brand analysis */}
+              {!brandAnalysis && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mb-4 flex items-start gap-3 p-3.5 rounded-xl bg-warning/8 border border-warning/20"
+                >
+                  <Lightbulb className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-warning mb-0.5">Better leads available</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Add your website & social profiles, then run an AI Brand Analysis to get significantly more accurate lead targeting.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate("/dashboard/research")}
+                    className="text-[11px] text-primary hover:underline shrink-0 font-medium mt-0.5"
+                  >
+                    Set up →
+                  </button>
+                </motion.div>
+              )}
 
               {/* Lead cards */}
               <div className="space-y-3">
