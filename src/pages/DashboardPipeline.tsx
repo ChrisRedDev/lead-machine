@@ -466,7 +466,7 @@ const DashboardPipeline = () => {
       <DashboardHeader title="Pipeline" />
       <main className="p-4 lg:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-display font-bold tracking-tight">Lead Pipeline</h2>
             <p className="text-sm text-muted-foreground">
@@ -476,6 +476,43 @@ const DashboardPipeline = () => {
           <Button onClick={() => setShowAddModal(true)} className="h-9 rounded-xl bg-gradient-primary text-sm">
             <Plus className="w-4 h-4 mr-1.5" />Add Leads
           </Button>
+        </div>
+
+        {/* Filter bar */}
+        <div className="flex items-center gap-2 mb-5 flex-wrap">
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search leads…"
+              value={pipelineSearch}
+              onChange={(e) => setPipelineSearch(e.target.value)}
+              className="pl-9 h-9 rounded-xl bg-secondary border-border text-sm"
+            />
+            {pipelineSearch && (
+              <button onClick={() => setPipelineSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+            {(["all", "high", "good", "medium"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setScoreFilter(f)}
+                className={`text-[11px] px-2.5 py-1 rounded-lg border capitalize transition-colors ${
+                  scoreFilter === f
+                    ? f === "high" ? "bg-success/15 border-success/30 text-success"
+                      : f === "good" ? "bg-primary/15 border-primary/30 text-primary"
+                      : f === "medium" ? "bg-warning/15 border-warning/30 text-warning"
+                      : "bg-secondary border-border text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {f === "all" ? "All" : f === "high" ? "High" : f === "good" ? "Good" : "Medium"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Stats bar */}
