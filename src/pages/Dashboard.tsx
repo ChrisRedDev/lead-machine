@@ -322,6 +322,8 @@ const Dashboard = () => {
     });
   }, [user]);
 
+  const generationApiDone = useRef(false);
+
   const handleGenerate = async () => {
     if (!form.companyUrl || !form.description) {
       toast.error("Please fill in required fields.");
@@ -331,17 +333,23 @@ const Dashboard = () => {
     setStep("generating");
     setCurrentStatus(0);
     setCompletedSteps([]);
+    generationApiDone.current = false;
 
+    // Advance steps 0–3 on timer, hold at step 3 until API responds
+    let timerStep = 0;
+    const MAX_TIMER_STEP = statusMessages.length - 2; // hold 1 step back
     const statusInterval = setInterval(() => {
-      setCurrentStatus((prev) => {
-        setCompletedSteps((c) => (c.includes(prev) ? c : [...c, prev]));
-        if (prev >= statusMessages.length - 1) {
-          clearInterval(statusInterval);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 2500);
+      if (generationApiDone.current) {
+        clearInterval(statusInterval);
+        return;
+      }
+      if (timerStep < MAX_TIMER_STEP) {
+        const next = timerStep + 1;
+        setCompletedSteps(c => c.includes(timerStep) ? c : [...c, timerStep]);
+        setCurrentStatus(next);
+        timerStep = next;
+      }
+    }, 6000);
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-leads", {
@@ -358,6 +366,7 @@ const Dashboard = () => {
         },
       });
 
+      generationApiDone.current = true;
       clearInterval(statusInterval);
 
       if (error) throw error;
@@ -365,6 +374,13 @@ const Dashboard = () => {
         toast.error(data.error);
         setStep("form");
         return;
+      }
+
+      // Flash remaining steps quickly then show results
+      for (let i = timerStep; i < statusMessages.length; i++) {
+        setCompletedSteps(c => c.includes(i) ? c : [...c, i]);
+        setCurrentStatus(i);
+        await new Promise(r => setTimeout(r, 300));
       }
 
       const generatedLeads = data?.leads || [];
@@ -392,6 +408,7 @@ const Dashboard = () => {
       setStep("results");
       toast.success(`Found ${generatedLeads.length} leads!`);
     } catch (err: any) {
+      generationApiDone.current = true;
       clearInterval(statusInterval);
       console.error("Generation error:", err);
       toast.error(err.message || "Failed to generate leads.");
