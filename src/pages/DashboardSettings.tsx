@@ -14,6 +14,7 @@ import { toast } from "sonner";
 const DashboardSettings = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState({ email: true, leads: true, marketing: false });
   const [displayName, setDisplayName] = useState("");
@@ -51,6 +52,12 @@ const DashboardSettings = () => {
     }
     setSaving(false);
   };
+
+  const themeOptions: { value: "light" | "dark" | "system"; icon: React.ReactNode; label: string }[] = [
+    { value: "light", icon: <Sun className="w-3.5 h-3.5" />, label: "Light" },
+    { value: "dark", icon: <Moon className="w-3.5 h-3.5" />, label: "Dark" },
+    { value: "system", icon: <Monitor className="w-3.5 h-3.5" />, label: "System" },
+  ];
 
   return (
     <>
@@ -90,6 +97,33 @@ const DashboardSettings = () => {
               {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : saved ? <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> : null}
               {saved ? "Saved!" : "Save Changes"}
             </Button>
+          </div>
+        </div>
+
+        {/* Appearance */}
+        <div className="border border-border rounded-2xl bg-card overflow-hidden">
+          <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-secondary/30">
+            <Palette className="w-4 h-4 text-accent" />
+            <h3 className="text-[15px] font-display font-semibold">Appearance</h3>
+          </div>
+          <div className="p-6">
+            <label className="text-[13px] font-medium mb-3 block">Theme</label>
+            <div className="flex gap-2">
+              {themeOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => setTheme(opt.value)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] border transition-all ${
+                    theme === opt.value
+                      ? "bg-primary/10 border-primary text-primary font-medium"
+                      : "border-border bg-secondary hover:border-primary/40 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {opt.icon}
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
