@@ -629,6 +629,20 @@ const Dashboard = () => {
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-destructive" />
                       <Input placeholder={t("generate.targetLocationPlaceholder")} value={form.targetLocation} onChange={(e) => setForm({ ...form, targetLocation: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
+                    {brandAnalysis?.recommended_locations?.length > 0 && !form.targetLocation && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        <span className="text-[10px] text-muted-foreground mt-0.5">Suggested:</span>
+                        {brandAnalysis.recommended_locations.slice(0, 3).map((loc: string, i: number) => (
+                          <button
+                            key={i}
+                            onClick={() => setForm(f => ({ ...f, targetLocation: loc }))}
+                            className="text-[10px] px-1.5 py-0.5 rounded-md bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-colors font-medium"
+                          >
+                            {loc}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetIndustry")}</label>
@@ -636,6 +650,20 @@ const Dashboard = () => {
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent" />
                       <Input placeholder={t("generate.targetIndustryPlaceholder")} value={form.targetIndustry} onChange={(e) => setForm({ ...form, targetIndustry: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
+                    {brandAnalysis?.recommended_industries?.length > 0 && !form.targetIndustry && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        <span className="text-[10px] text-muted-foreground mt-0.5">Suggested:</span>
+                        {brandAnalysis.recommended_industries.slice(0, 3).map((ind: string, i: number) => (
+                          <button
+                            key={i}
+                            onClick={() => setForm(f => ({ ...f, targetIndustry: ind }))}
+                            className="text-[10px] px-1.5 py-0.5 rounded-md bg-warning/10 text-warning border border-warning/20 hover:bg-warning/20 transition-colors font-medium"
+                          >
+                            {ind}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
