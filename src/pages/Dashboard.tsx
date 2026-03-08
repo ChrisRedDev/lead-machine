@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,12 +6,13 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Globe, FileText, MapPin, Building, Users, Sparkles, Brain, Target,
   Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin,
   ChevronDown, ChevronUp, Copy, Mail, Download, CheckCircle, ExternalLink, Phone,
-  Check
+  Check, Pen, RefreshCw, ChevronRight, X
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -48,6 +49,226 @@ const ScoreRing = ({ score, size = 48 }: { score: number; size?: number }) => {
   );
 };
 
+// ── Email Composer Modal ─────────────────────────────────────────────────────
+const EmailComposerModal = ({
+  lead,
+  brandAnalysis,
+  senderCompany,
+  open,
+  onClose,
+}: {
+  lead: any;
+  brandAnalysis: any;
+  senderCompany: string;
+  open: boolean;
+  onClose: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [emailBody, setEmailBody] = useState("");
+  const [subjectLines, setSubjectLines] = useState<string[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState(0);
+  const [copied, setCopied] = useState<"body" | "subject" | null>(null);
+  const generated = useRef(false);
+
+  const generate = async () => {
+    setLoading(true);
+    setEmailBody("");
+    setSubjectLines([]);
+    generated.current = true;
+    try {
+      const { data, error } = await supabase.functions.invoke("compose-email", {
+        body: { lead, brandAnalysis, senderCompany },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setEmailBody(data.email_body || "");
+      setSubjectLines(data.subject_lines || []);
+      setSelectedSubject(0);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate email.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-generate when modal opens
+  useEffect(() => {
+    if (open && !generated.current) generate();
+    if (!open) { generated.current = false; setEmailBody(""); setSubjectLines([]); }
+  }, [open]);
+
+  const copyText = (text: string, kind: "body" | "subject") => {
+    navigator.clipboard.writeText(text);
+    setCopied(kind);
+    toast.success("Copied to clipboard!");
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  const firstName = (lead?.contact_person || "").split(" ")[0] || lead?.company_name || "there";
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-xl w-full rounded-2xl gap-0 p-0 overflow-hidden">
+        {/* Header */}
+        <div className="px-5 py-4 border-b border-border bg-card flex items-start gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Pen className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <DialogTitle className="text-[15px] font-display font-semibold leading-tight">
+              Cold Email for {lead?.company_name}
+            </DialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {lead?.contact_person} · {lead?.role}
+            </p>
+          </div>
+          {brandAnalysis && (
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-semibold shrink-0">
+              Brand AI
+            </span>
+          )}
+        </div>
+
+        <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+          {/* Loading skeleton */}
+          {loading && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div className="text-center py-6">
+                <motion.div
+                  className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3"
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.2 }}
+                >
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </motion.div>
+                <p className="text-sm font-medium">Crafting your personalized email…</p>
+                <p className="text-xs text-muted-foreground mt-1">Using brand context + lead fit data</p>
+              </div>
+              {[80, 60, 70, 50, 65].map((w, i) => (
+                <div key={i} className={`h-3 bg-muted rounded-full animate-pulse`} style={{ width: `${w}%` }} />
+              ))}
+            </motion.div>
+          )}
+
+          {/* Generated content */}
+          {!loading && emailBody && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              {/* Subject line picker */}
+              {subjectLines.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider">Subject Line</label>
+                    <button
+                      onClick={() => copyText(subjectLines[selectedSubject], "subject")}
+                      className="flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors font-medium"
+                    >
+                      {copied === "subject" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      {copied === "subject" ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {subjectLines.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedSubject(i)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-[13px] border transition-all ${
+                          selectedSubject === i
+                            ? "bg-primary/10 border-primary/30 text-primary font-medium"
+                            : "bg-secondary border-border text-foreground hover:border-primary/20"
+                        }`}
+                      >
+                        <span className="text-muted-foreground text-[11px] mr-1.5">Option {i + 1}</span>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Email body */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider">Email Body</label>
+                  <button
+                    onClick={() => copyText(emailBody, "body")}
+                    className="flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    {copied === "body" ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {copied === "body" ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+                <div className="relative">
+                  <textarea
+                    value={emailBody}
+                    onChange={(e) => setEmailBody(e.target.value)}
+                    className="w-full min-h-[200px] rounded-xl border border-border bg-secondary px-4 py-3 text-sm leading-relaxed resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">You can edit the email above before copying.</p>
+              </div>
+
+              {/* Fit reason context */}
+              {lead?.fit_reason && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-success/5 border border-success/15">
+                  <Target className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+                  <p className="text-[12px] text-muted-foreground leading-relaxed">
+                    <span className="text-success font-semibold">Why this lead fits: </span>
+                    {lead.fit_reason}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        {!loading && emailBody && (
+          <div className="px-5 py-4 border-t border-border bg-card/50 flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-[13px] h-9"
+              onClick={generate}
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Regenerate
+            </Button>
+            <div className="flex-1" />
+            {lead?.email && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-xl text-[13px] h-9"
+                onClick={() => {
+                  const subject = encodeURIComponent(subjectLines[selectedSubject] || "");
+                  const body = encodeURIComponent(emailBody);
+                  window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`, "_blank");
+                }}
+              >
+                <Mail className="w-3.5 h-3.5 mr-1.5" />
+                Open in Mail
+              </Button>
+            )}
+            <Button
+              size="sm"
+              className="rounded-xl text-[13px] h-9 bg-gradient-primary text-primary-foreground hover:opacity-90"
+              onClick={() => {
+                const full = `Subject: ${subjectLines[selectedSubject] || ""}\n\n${emailBody}`;
+                copyText(full, "body");
+              }}
+            >
+              <Copy className="w-3.5 h-3.5 mr-1.5" />
+              Copy All
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -60,6 +281,7 @@ const Dashboard = () => {
   const [expandedLead, setExpandedLead] = useState<number | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [brandAnalysis, setBrandAnalysis] = useState<any>(null);
+  const [emailComposeLead, setEmailComposeLead] = useState<any>(null);
   const [form, setForm] = useState({
     companyUrl: "",
     description: "",
@@ -499,6 +721,15 @@ const Dashboard = () => {
 
                         {/* Quick actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* Write cold email button */}
+                          <button
+                            className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
+                            title="Write cold email with AI"
+                            onClick={() => setEmailComposeLead(lead)}
+                          >
+                            <Pen className="w-3 h-3" />
+                            <span className="text-[11px] font-medium hidden sm:inline">Write</span>
+                          </button>
                           {lead.email && (
                             <button
                               className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-secondary transition-colors"
@@ -628,6 +859,15 @@ const Dashboard = () => {
 
         </AnimatePresence>
       </main>
+
+      {/* Cold Email Composer Modal */}
+      <EmailComposerModal
+        lead={emailComposeLead}
+        brandAnalysis={brandAnalysis}
+        senderCompany={form.companyUrl}
+        open={!!emailComposeLead}
+        onClose={() => setEmailComposeLead(null)}
+      />
     </>
   );
 };
