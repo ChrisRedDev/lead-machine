@@ -534,7 +534,7 @@ const DashboardResearch = () => {
               Save Changes
             </Button>
             <Button
-              onClick={handleAnalyze}
+              onClick={() => handleAnalyze(false)}
               disabled={analyzing || (!form.company_url && !form.company_description)}
               className="flex-1 h-11 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90"
             >
