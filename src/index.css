@@ -6,7 +6,9 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* ── Dark theme (default) ────────────────────────────────── */
+  :root,
+  .dark {
     --background: 228 14% 10%;
     --foreground: 210 40% 96%;
 
@@ -54,6 +56,55 @@
     --sidebar-accent-foreground: 210 40% 96%;
     --sidebar-border: 228 12% 16%;
     --sidebar-ring: 234 89% 64%;
+  }
+
+  /* ── Light theme ──────────────────────────────────────────── */
+  .light {
+    --background: 220 20% 98%;
+    --foreground: 228 14% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 228 14% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 14% 12%;
+
+    --primary: 234 89% 58%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 93%;
+    --secondary-foreground: 228 14% 20%;
+
+    --muted: 220 14% 95%;
+    --muted-foreground: 215 16% 46%;
+
+    --accent: 260 70% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 42%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 190 80% 40%;
+    --info-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 234 89% 58%;
+
+    --sidebar-background: 220 20% 96%;
+    --sidebar-foreground: 228 14% 25%;
+    --sidebar-primary: 234 89% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 228 14% 12%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 234 89% 58%;
   }
 }
 
