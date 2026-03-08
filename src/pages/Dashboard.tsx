@@ -994,10 +994,6 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-
-              <Button variant="ghost" className="mt-4 text-[13px]" onClick={() => { setStep("form"); setLeads([]); setUnlocked(false); setExpandedLead(null); }}>
-                ← {t("generate.title")}
-              </Button>
             </motion.div>
           )}
 
