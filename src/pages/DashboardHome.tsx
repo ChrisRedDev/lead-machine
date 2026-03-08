@@ -50,7 +50,7 @@ const DashboardHome = () => {
             ]);
 
             if (exportsRes.data) {
-                const rows = exportsRes.data as ExportRow[];
+                const rows = (exportsRes.data as unknown) as ExportRow[];
                 setTotalExports(rows.length);
                 const sum = rows.reduce((acc, r) => acc + (r.lead_count || 0), 0);
                 setTotalLeads(sum);
