@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,12 +6,13 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight, Globe, FileText, MapPin, Building, Users, Sparkles, Brain, Target,
   Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin,
   ChevronDown, ChevronUp, Copy, Mail, Download, CheckCircle, ExternalLink, Phone,
-  Check
+  Check, Pen, RefreshCw, ChevronRight, X
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
