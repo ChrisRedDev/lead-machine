@@ -12,7 +12,7 @@ import {
   ArrowRight, Globe, FileText, MapPin, Building, Users, Sparkles, Brain, Target,
   Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin,
   ChevronDown, ChevronUp, Copy, Mail, Download, CheckCircle, ExternalLink, Phone,
-  Check, Pen, RefreshCw, ChevronRight, X
+  Check, Pen, RefreshCw, ChevronRight, X, Plus, Kanban, Lightbulb
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
