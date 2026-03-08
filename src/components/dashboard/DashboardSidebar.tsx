@@ -27,6 +27,7 @@ const DashboardSidebar = () => {
     { icon: Brain, label: "AI Research", path: "/dashboard/research" },
     { icon: BarChart3, label: "Analytics", path: "/dashboard/analytics" },
     { icon: Mail, label: "Campaigns", path: "/dashboard/campaigns" },
+    { icon: Kanban, label: "Pipeline", path: "/dashboard/pipeline" },
     { icon: Users, label: "Team", path: "/dashboard/team" },
     { icon: Plug, label: "Integrations", path: "/dashboard/integrations" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
