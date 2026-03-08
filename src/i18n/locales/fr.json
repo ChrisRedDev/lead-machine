@@ -17,7 +17,8 @@
   "stats": {
     "leadsGenerated": "Leads Générés",
     "businesses": "Entreprises Servies",
-    "accuracy": "Précision de Match"
+    "accuracy": "Précision de Match",
+    "timeToLeads": "Temps Avant Premiers Leads"
   },
   "features": {
     "title": "Comment Ça Marche",

@@ -17,7 +17,8 @@
   "stats": {
     "leadsGenerated": "Generierte Leads",
     "businesses": "Betreute Unternehmen",
-    "accuracy": "Match-Genauigkeit"
+    "accuracy": "Match-Genauigkeit",
+    "timeToLeads": "Zeit bis Erste Leads"
   },
   "features": {
     "title": "So Funktioniert's",
