@@ -26,17 +26,17 @@ interface BrandAnalysis {
   icp_description: string;
 }
 
-const ProfileCompleteness = ({ profile }: { profile: any }) => {
+const ProfileCompleteness = ({ profile, onNavigate }: { profile: any; onNavigate: (section: string) => void }) => {
   const fields = [
-    { label: "Website", filled: !!profile?.company_url },
-    { label: "Description", filled: !!profile?.company_description },
-    { label: "Facebook", filled: !!profile?.facebook_url },
-    { label: "Instagram", filled: !!profile?.instagram_url },
-    { label: "LinkedIn", filled: !!profile?.linkedin_url },
-    { label: "Target Location", filled: !!profile?.target_location },
-    { label: "Target Industry", filled: !!profile?.target_industry },
-    { label: "Ideal Client", filled: !!profile?.ideal_client_description },
-    { label: "AI Analysis", filled: !!profile?.brand_analysis },
+    { label: "Website URL", key: "company_url", hint: "Required for AI analysis", filled: !!profile?.company_url },
+    { label: "Company Description", key: "company_description", hint: "Helps AI understand your business", filled: !!profile?.company_description },
+    { label: "Facebook", key: "facebook_url", hint: "Improves brand voice analysis", filled: !!profile?.facebook_url },
+    { label: "Instagram", key: "instagram_url", hint: "Improves brand voice analysis", filled: !!profile?.instagram_url },
+    { label: "LinkedIn", key: "linkedin_url", hint: "Best signal for B2B targeting", filled: !!profile?.linkedin_url },
+    { label: "Target Location", key: "target_location", hint: "Focuses lead geography", filled: !!profile?.target_location },
+    { label: "Target Industry", key: "target_industry", hint: "Narrows industry matching", filled: !!profile?.target_industry },
+    { label: "Ideal Client", key: "ideal_client_description", hint: "Sharpens ICP matching", filled: !!profile?.ideal_client_description },
+    { label: "AI Analysis", key: "brand_analysis", hint: "Run analysis below to unlock", filled: !!profile?.brand_analysis },
   ];
   const filled = fields.filter(f => f.filled).length;
   const pct = Math.round((filled / fields.length) * 100);
@@ -48,7 +48,7 @@ const ProfileCompleteness = ({ profile }: { profile: any }) => {
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile Completeness</span>
         <span className="text-sm font-bold" style={{ color }}>{pct}%</span>
       </div>
-      <div className="h-2 rounded-full bg-secondary overflow-hidden mb-3">
+      <div className="h-2 rounded-full bg-secondary overflow-hidden mb-4">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -57,14 +57,25 @@ const ProfileCompleteness = ({ profile }: { profile: any }) => {
           style={{ backgroundColor: color }}
         />
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="space-y-1.5">
         {fields.map((f, i) => (
-          <span
-            key={i}
-            className={`text-[10px] px-1.5 py-0.5 rounded font-medium border ${f.filled ? "bg-success/10 text-success border-success/20" : "bg-secondary text-muted-foreground border-border"}`}
-          >
-            {f.filled ? "✓ " : ""}{f.label}
-          </span>
+          <div key={i} className="flex items-center gap-3 py-1">
+            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${f.filled ? "bg-success/20" : "bg-secondary border border-border"}`}>
+              {f.filled && <Check className="w-2.5 h-2.5 text-success" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className={`text-xs font-medium ${f.filled ? "text-foreground" : "text-muted-foreground"}`}>{f.label}</span>
+              {!f.filled && <span className="text-[10px] text-muted-foreground/60 ml-1.5">{f.hint}</span>}
+            </div>
+            {!f.filled && (
+              <button
+                onClick={() => onNavigate(f.key)}
+                className="text-[11px] text-primary hover:underline shrink-0"
+              >
+                Fill in →
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </div>
