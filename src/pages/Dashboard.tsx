@@ -859,6 +859,15 @@ const Dashboard = () => {
 
         </AnimatePresence>
       </main>
+
+      {/* Cold Email Composer Modal */}
+      <EmailComposerModal
+        lead={emailComposeLead}
+        brandAnalysis={brandAnalysis}
+        senderCompany={form.companyUrl}
+        open={!!emailComposeLead}
+        onClose={() => setEmailComposeLead(null)}
+      />
     </>
   );
 };
