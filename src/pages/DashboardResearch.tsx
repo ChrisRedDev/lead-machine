@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -9,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Globe, Facebook, Instagram, Linkedin, Brain, RefreshCw, CheckCircle2,
   Building, MapPin, Users, Loader2, Sparkles, Target, TrendingUp,
-  ChevronDown, ChevronUp, Zap, Shield
+  ChevronDown, ChevronUp, Zap, Shield, AlertTriangle, Check, X
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,17 +26,17 @@ interface BrandAnalysis {
   icp_description: string;
 }
 
-const ProfileCompleteness = ({ profile }: { profile: any }) => {
+const ProfileCompleteness = ({ profile, onNavigate }: { profile: any; onNavigate: (section: string) => void }) => {
   const fields = [
-    { label: "Website", filled: !!profile?.company_url },
-    { label: "Description", filled: !!profile?.company_description },
-    { label: "Facebook", filled: !!profile?.facebook_url },
-    { label: "Instagram", filled: !!profile?.instagram_url },
-    { label: "LinkedIn", filled: !!profile?.linkedin_url },
-    { label: "Target Location", filled: !!profile?.target_location },
-    { label: "Target Industry", filled: !!profile?.target_industry },
-    { label: "Ideal Client", filled: !!profile?.ideal_client_description },
-    { label: "AI Analysis", filled: !!profile?.brand_analysis },
+    { label: "Website URL", key: "company_url", hint: "Required for AI analysis", filled: !!profile?.company_url },
+    { label: "Company Description", key: "company_description", hint: "Helps AI understand your business", filled: !!profile?.company_description },
+    { label: "Facebook", key: "facebook_url", hint: "Improves brand voice analysis", filled: !!profile?.facebook_url },
+    { label: "Instagram", key: "instagram_url", hint: "Improves brand voice analysis", filled: !!profile?.instagram_url },
+    { label: "LinkedIn", key: "linkedin_url", hint: "Best signal for B2B targeting", filled: !!profile?.linkedin_url },
+    { label: "Target Location", key: "target_location", hint: "Focuses lead geography", filled: !!profile?.target_location },
+    { label: "Target Industry", key: "target_industry", hint: "Narrows industry matching", filled: !!profile?.target_industry },
+    { label: "Ideal Client", key: "ideal_client_description", hint: "Sharpens ICP matching", filled: !!profile?.ideal_client_description },
+    { label: "AI Analysis", key: "brand_analysis", hint: "Run analysis below to unlock", filled: !!profile?.brand_analysis },
   ];
   const filled = fields.filter(f => f.filled).length;
   const pct = Math.round((filled / fields.length) * 100);
@@ -47,7 +48,7 @@ const ProfileCompleteness = ({ profile }: { profile: any }) => {
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Profile Completeness</span>
         <span className="text-sm font-bold" style={{ color }}>{pct}%</span>
       </div>
-      <div className="h-2 rounded-full bg-secondary overflow-hidden mb-3">
+      <div className="h-2 rounded-full bg-secondary overflow-hidden mb-4">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -56,14 +57,25 @@ const ProfileCompleteness = ({ profile }: { profile: any }) => {
           style={{ backgroundColor: color }}
         />
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="space-y-1.5">
         {fields.map((f, i) => (
-          <span
-            key={i}
-            className={`text-[10px] px-1.5 py-0.5 rounded font-medium border ${f.filled ? "bg-success/10 text-success border-success/20" : "bg-secondary text-muted-foreground border-border"}`}
-          >
-            {f.filled ? "✓ " : ""}{f.label}
-          </span>
+          <div key={i} className="flex items-center gap-3 py-1">
+            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${f.filled ? "bg-success/20" : "bg-secondary border border-border"}`}>
+              {f.filled && <Check className="w-2.5 h-2.5 text-success" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className={`text-xs font-medium ${f.filled ? "text-foreground" : "text-muted-foreground"}`}>{f.label}</span>
+              {!f.filled && <span className="text-[10px] text-muted-foreground/60 ml-1.5">{f.hint}</span>}
+            </div>
+            {!f.filled && (
+              <button
+                onClick={() => onNavigate(f.key)}
+                className="text-[11px] text-primary hover:underline shrink-0"
+              >
+                Fill in →
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </div>
@@ -100,7 +112,7 @@ const BrandAnalysisCard = ({ analysis, analyzedAt, onReanalyze, analyzing }: {
         <Button
           size="sm"
           variant="outline"
-          onClick={onReanalyze}
+          onClick={() => onReanalyze()}
           disabled={analyzing}
           className="h-8 rounded-lg text-xs border-primary/20 hover:bg-primary/10"
         >
@@ -240,10 +252,13 @@ const BrandAnalysisCard = ({ analysis, analyzedAt, onReanalyze, analyzing }: {
 
 const DashboardResearch = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const formRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [confirmReanalyze, setConfirmReanalyze] = useState(false);
   const [form, setForm] = useState({
     company_url: "",
     company_name: "",
@@ -309,7 +324,14 @@ const DashboardResearch = () => {
     setSaving(false);
   };
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (confirmed = false) => {
+    // If analysis already exists, require confirmation
+    const currentAnalysis = (profile as any)?.brand_analysis;
+    if (currentAnalysis && !confirmed) {
+      setConfirmReanalyze(true);
+      return;
+    }
+    setConfirmReanalyze(false);
     setAnalyzing(true);
     // Save first
     await supabase.from("profiles").update({
@@ -376,10 +398,38 @@ const DashboardResearch = () => {
 
         {/* Profile Completeness */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <ProfileCompleteness profile={profile} />
+          <ProfileCompleteness profile={profile} onNavigate={(field) => {
+            formRef.current?.scrollIntoView({ behavior: "smooth" });
+          }} />
         </motion.div>
 
         {/* AI Brand Analysis Card */}
+        {/* Re-analyze confirmation banner */}
+        <AnimatePresence>
+          {confirmReanalyze && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-start gap-3 p-4 rounded-xl bg-warning/10 border border-warning/25"
+            >
+              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-warning mb-0.5">Replace existing analysis?</p>
+                <p className="text-xs text-muted-foreground">This will overwrite your current AI brand analysis. Your current analysis will be lost.</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs" onClick={() => setConfirmReanalyze(false)}>
+                  <X className="w-3 h-3 mr-1" /> Cancel
+                </Button>
+                <Button size="sm" className="h-8 rounded-lg text-xs bg-warning text-warning-foreground hover:bg-warning/90" onClick={() => handleAnalyze(true)}>
+                  <Check className="w-3 h-3 mr-1" /> Yes, Re-analyze
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {brandAnalysis ? (
           <BrandAnalysisCard
             analysis={brandAnalysis}
@@ -402,7 +452,7 @@ const DashboardResearch = () => {
               Fill in your business details below and click "Analyze" to generate an AI brand overview. This improves lead generation quality significantly.
             </p>
             <Button
-              onClick={handleAnalyze}
+              onClick={() => handleAnalyze(false)}
               disabled={analyzing || (!form.company_url && !form.company_description)}
               className="h-10 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
             >
@@ -435,7 +485,7 @@ const DashboardResearch = () => {
         </motion.div>
 
         {/* Edit Form */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4 border border-border rounded-2xl bg-card p-6">
+        <motion.div ref={formRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4 border border-border rounded-2xl bg-card p-6">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-display font-semibold">Business Profile</h3>
             <Button size="sm" variant="ghost" onClick={handleSave} disabled={saving} className="h-8 text-xs rounded-lg">
@@ -510,7 +560,7 @@ const DashboardResearch = () => {
               Save Changes
             </Button>
             <Button
-              onClick={handleAnalyze}
+              onClick={() => handleAnalyze(false)}
               disabled={analyzing || (!form.company_url && !form.company_description)}
               className="flex-1 h-11 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90"
             >

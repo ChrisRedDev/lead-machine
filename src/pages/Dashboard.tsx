@@ -12,7 +12,7 @@ import {
   ArrowRight, Globe, FileText, MapPin, Building, Users, Sparkles, Brain, Target,
   Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin,
   ChevronDown, ChevronUp, Copy, Mail, Download, CheckCircle, ExternalLink, Phone,
-  Check, Pen, RefreshCw, ChevronRight, X
+  Check, Pen, RefreshCw, ChevronRight, X, Plus, Kanban, Lightbulb
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -282,6 +282,7 @@ const Dashboard = () => {
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [brandAnalysis, setBrandAnalysis] = useState<any>(null);
   const [emailComposeLead, setEmailComposeLead] = useState<any>(null);
+  const [brandBannerExpanded, setBrandBannerExpanded] = useState(false);
   const [form, setForm] = useState({
     companyUrl: "",
     description: "",
@@ -322,6 +323,8 @@ const Dashboard = () => {
     });
   }, [user]);
 
+  const generationApiDone = useRef(false);
+
   const handleGenerate = async () => {
     if (!form.companyUrl || !form.description) {
       toast.error("Please fill in required fields.");
@@ -331,17 +334,23 @@ const Dashboard = () => {
     setStep("generating");
     setCurrentStatus(0);
     setCompletedSteps([]);
+    generationApiDone.current = false;
 
+    // Advance steps 0–3 on timer, hold at step 3 until API responds
+    let timerStep = 0;
+    const MAX_TIMER_STEP = statusMessages.length - 2; // hold 1 step back
     const statusInterval = setInterval(() => {
-      setCurrentStatus((prev) => {
-        setCompletedSteps((c) => (c.includes(prev) ? c : [...c, prev]));
-        if (prev >= statusMessages.length - 1) {
-          clearInterval(statusInterval);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 2500);
+      if (generationApiDone.current) {
+        clearInterval(statusInterval);
+        return;
+      }
+      if (timerStep < MAX_TIMER_STEP) {
+        const next = timerStep + 1;
+        setCompletedSteps(c => c.includes(timerStep) ? c : [...c, timerStep]);
+        setCurrentStatus(next);
+        timerStep = next;
+      }
+    }, 6000);
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-leads", {
@@ -358,6 +367,7 @@ const Dashboard = () => {
         },
       });
 
+      generationApiDone.current = true;
       clearInterval(statusInterval);
 
       if (error) throw error;
@@ -365,6 +375,13 @@ const Dashboard = () => {
         toast.error(data.error);
         setStep("form");
         return;
+      }
+
+      // Flash remaining steps quickly then show results
+      for (let i = timerStep; i < statusMessages.length; i++) {
+        setCompletedSteps(c => c.includes(i) ? c : [...c, i]);
+        setCurrentStatus(i);
+        await new Promise(r => setTimeout(r, 300));
       }
 
       const generatedLeads = data?.leads || [];
@@ -392,6 +409,7 @@ const Dashboard = () => {
       setStep("results");
       toast.success(`Found ${generatedLeads.length} leads!`);
     } catch (err: any) {
+      generationApiDone.current = true;
       clearInterval(statusInterval);
       console.error("Generation error:", err);
       toast.error(err.message || "Failed to generate leads.");
@@ -423,6 +441,29 @@ const Dashboard = () => {
     const a = document.createElement("a");
     a.href = url; a.download = "leads.json"; a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const addToPipeline = async (lead: any) => {
+    if (!user) return;
+    const { error } = await supabase.from("lead_pipeline").insert({
+      user_id: user.id,
+      company_name: lead.company_name,
+      contact_name: lead.contact_person,
+      role: lead.role,
+      email: lead.email,
+      industry: lead.industry,
+      fit_reason: lead.fit_reason,
+      score: parseInt(lead.score || lead.ai_match || "85") || 85,
+      stage: "new",
+      lead_index: Math.floor(Math.random() * 10000),
+    } as any);
+    if (error) {
+      toast.error("Failed to add to pipeline.");
+    } else {
+      toast.success(`${lead.company_name} added to Pipeline!`, {
+        action: { label: "View Pipeline", onClick: () => navigate("/dashboard/pipeline") },
+      });
+    }
   };
 
   const copyAllEmails = () => {
@@ -485,21 +526,56 @@ const Dashboard = () => {
                 )}
               </div>
 
-              {/* Brand analysis context banner */}
+              {/* Brand analysis context banner — expandable */}
               {brandAnalysis && (
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 p-3.5 rounded-xl bg-primary/8 border border-primary/15"
+                  className="rounded-xl bg-primary/8 border border-primary/15 overflow-hidden"
                 >
-                  <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-primary mb-0.5">Using your brand profile</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                      {brandAnalysis.value_proposition || `AI will use your saved brand analysis (${brandAnalysis.services?.slice(0,2).join(", ")}) to find better-matched leads.`}
-                    </p>
-                  </div>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20 font-semibold shrink-0">Active</span>
+                  <button
+                    className="w-full flex items-start gap-3 p-3.5 text-left"
+                    onClick={() => setBrandBannerExpanded(e => !e)}
+                  >
+                    <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-primary mb-0.5">Using your brand profile</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {brandAnalysis.value_proposition || `AI will use your saved brand analysis to find better-matched leads.`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20 font-semibold">Active</span>
+                      {brandBannerExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  <AnimatePresence>
+                    {brandBannerExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-3.5 pb-3.5 space-y-2 border-t border-primary/10 pt-2.5">
+                          {brandAnalysis.icp_description && (
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              <span className="text-foreground font-semibold">ICP: </span>{brandAnalysis.icp_description}
+                            </p>
+                          )}
+                          {brandAnalysis.recommended_industries?.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              <span className="text-[11px] text-muted-foreground mr-1">Industries:</span>
+                              {brandAnalysis.recommended_industries.slice(0, 4).map((ind: string, i: number) => (
+                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20 font-medium">{ind}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
 
@@ -553,6 +629,20 @@ const Dashboard = () => {
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-destructive" />
                       <Input placeholder={t("generate.targetLocationPlaceholder")} value={form.targetLocation} onChange={(e) => setForm({ ...form, targetLocation: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
+                    {brandAnalysis?.recommended_locations?.length > 0 && !form.targetLocation && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        <span className="text-[10px] text-muted-foreground mt-0.5">Suggested:</span>
+                        {brandAnalysis.recommended_locations.slice(0, 3).map((loc: string, i: number) => (
+                          <button
+                            key={i}
+                            onClick={() => setForm(f => ({ ...f, targetLocation: loc }))}
+                            className="text-[10px] px-1.5 py-0.5 rounded-md bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-colors font-medium"
+                          >
+                            {loc}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-[13px] font-medium mb-1.5 block">{t("generate.targetIndustry")}</label>
@@ -560,6 +650,20 @@ const Dashboard = () => {
                       <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent" />
                       <Input placeholder={t("generate.targetIndustryPlaceholder")} value={form.targetIndustry} onChange={(e) => setForm({ ...form, targetIndustry: e.target.value })} className="pl-10 h-11 rounded-xl bg-secondary border-border text-sm" />
                     </div>
+                    {brandAnalysis?.recommended_industries?.length > 0 && !form.targetIndustry && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        <span className="text-[10px] text-muted-foreground mt-0.5">Suggested:</span>
+                        {brandAnalysis.recommended_industries.slice(0, 3).map((ind: string, i: number) => (
+                          <button
+                            key={i}
+                            onClick={() => setForm(f => ({ ...f, targetIndustry: ind }))}
+                            className="text-[10px] px-1.5 py-0.5 rounded-md bg-warning/10 text-warning border border-warning/20 hover:bg-warning/20 transition-colors font-medium"
+                          >
+                            {ind}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -668,25 +772,56 @@ const Dashboard = () => {
                 ))}
               </div>
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                 <div>
                   <h2 className="text-xl font-display font-bold tracking-tight">{t("results.leadsFound")}: {leads.length}</h2>
                   <p className="text-sm text-muted-foreground">
                     {unlocked ? `${leads.length} leads unlocked` : `${Math.min(FREE_LEADS, leads.length)} ${t("results.free")} · ${Math.max(0, leads.length - FREE_LEADS)} locked`}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={copyAllEmails}>
                     <Mail className="w-3.5 h-3.5 mr-1" /> Emails
                   </Button>
                   <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={downloadJSON}>
                     JSON
                   </Button>
-                  <Button size="sm" className="h-9 rounded-xl text-[13px]" onClick={downloadCSV}>
+                  <Button size="sm" variant="outline" className="h-9 rounded-xl text-[13px]" onClick={downloadCSV}>
                     <Download className="w-3.5 h-3.5 mr-1" /> CSV
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-9 rounded-xl text-[13px] bg-gradient-primary text-primary-foreground hover:opacity-90"
+                    onClick={() => { setStep("form"); setLeads([]); setUnlocked(false); setExpandedLead(null); }}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> New Search
                   </Button>
                 </div>
               </div>
+
+              {/* Post-generation tip card if no brand analysis */}
+              {!brandAnalysis && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mb-4 flex items-start gap-3 p-3.5 rounded-xl bg-warning/8 border border-warning/20"
+                >
+                  <Lightbulb className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-warning mb-0.5">Better leads available</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Add your website & social profiles, then run an AI Brand Analysis to get significantly more accurate lead targeting.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate("/dashboard/research")}
+                    className="text-[11px] text-primary hover:underline shrink-0 font-medium mt-0.5"
+                  >
+                    Set up →
+                  </button>
+                </motion.div>
+              )}
 
               {/* Lead cards */}
               <div className="space-y-3">
@@ -696,9 +831,9 @@ const Dashboard = () => {
                   return (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
+                      transition={{ delay: i * 0.06, duration: 0.3 }}
                       className="border border-border rounded-xl bg-card overflow-hidden hover-lift cursor-pointer"
                       onClick={() => setExpandedLead(isExpanded ? null : i)}
                     >
@@ -721,6 +856,15 @@ const Dashboard = () => {
 
                         {/* Quick actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* Add to Pipeline button */}
+                          <button
+                            className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-success/10 hover:bg-success/20 transition-colors text-success"
+                            title="Add to Pipeline"
+                            onClick={() => addToPipeline(lead)}
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span className="text-[11px] font-medium hidden sm:inline">Pipeline</span>
+                          </button>
                           {/* Write cold email button */}
                           <button
                             className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
@@ -850,10 +994,6 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-
-              <Button variant="ghost" className="mt-4 text-[13px]" onClick={() => { setStep("form"); setLeads([]); setUnlocked(false); setExpandedLead(null); }}>
-                ← {t("generate.title")}
-              </Button>
             </motion.div>
           )}
 
