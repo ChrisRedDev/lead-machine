@@ -434,7 +434,27 @@ const DashboardPipeline = () => {
 
   const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
 
-  const stageLeads = (stage: Stage) => leads.filter((l) => l.stage === stage);
+  const stageLeads = (stage: Stage) => {
+    let filtered = leads.filter((l) => l.stage === stage);
+    if (pipelineSearch.trim()) {
+      const q = pipelineSearch.toLowerCase();
+      filtered = filtered.filter(l =>
+        l.company_name?.toLowerCase().includes(q) ||
+        l.contact_name?.toLowerCase().includes(q) ||
+        l.role?.toLowerCase().includes(q)
+      );
+    }
+    if (scoreFilter !== "all") {
+      filtered = filtered.filter(l => {
+        const n = l.score || 0;
+        if (scoreFilter === "high") return n >= 90;
+        if (scoreFilter === "good") return n >= 80 && n < 90;
+        if (scoreFilter === "medium") return n >= 70 && n < 80;
+        return true;
+      });
+    }
+    return filtered;
+  };
 
   const totalLeads = leads.length;
   const closedLeads = stageLeads("closed").length;
