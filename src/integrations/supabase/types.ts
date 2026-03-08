@@ -106,6 +106,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          brand_analysis: Json | null
           company_description: string | null
           company_name: string | null
           company_url: string | null
@@ -122,6 +123,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          brand_analysis?: Json | null
           company_description?: string | null
           company_name?: string | null
           company_url?: string | null
@@ -138,6 +140,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          brand_analysis?: Json | null
           company_description?: string | null
           company_name?: string | null
           company_url?: string | null

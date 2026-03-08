@@ -52,7 +52,7 @@ serve(async (req) => {
       });
     }
 
-    const { companyUrl, description, targetLocation, targetIndustry, idealClient, facebookUrl, instagramUrl, linkedinUrl } = await req.json();
+    const { companyUrl, description, targetLocation, targetIndustry, idealClient, facebookUrl, instagramUrl, linkedinUrl, brandAnalysis } = await req.json();
 
     if (!companyUrl || !description) {
       return new Response(JSON.stringify({ error: "Company URL and description are required" }), {
@@ -82,12 +82,27 @@ serve(async (req) => {
     const industryContext = targetIndustry ? `in the ${targetIndustry} industry` : "";
     const clientContext = idealClient ? `Ideal client: ${idealClient}.` : "";
 
+    // Build brand analysis context if available
+    let brandContext = "";
+    if (brandAnalysis) {
+      const parts: string[] = [];
+      if (brandAnalysis.value_proposition) parts.push(`Value Proposition: ${brandAnalysis.value_proposition}`);
+      if (brandAnalysis.positioning) parts.push(`Market Positioning: ${brandAnalysis.positioning}`);
+      if (brandAnalysis.target_audience?.length) parts.push(`Target Audience: ${brandAnalysis.target_audience.join(", ")}`);
+      if (brandAnalysis.strengths?.length) parts.push(`Key Strengths: ${brandAnalysis.strengths.join(", ")}`);
+      if (brandAnalysis.icp_description) parts.push(`Ideal Customer Profile: ${brandAnalysis.icp_description}`);
+      if (parts.length > 0) {
+        brandContext = `\n\nAI BRAND ANALYSIS (use this for highly targeted lead matching):\n${parts.join("\n")}`;
+      }
+    }
+
     const prompt = `I need to find potential B2B clients for a company. First, deeply analyze their business from these sources, then find matching clients.
 
 Company website: ${companyUrl}
 What they do: ${description}
 ${socialContext}
 ${clientContext}
+${brandContext}
 
 STEP 1 - ANALYZE THE BUSINESS:
 Research the company website${socialLinks.length > 0 ? " and social media profiles" : ""} to understand:
@@ -97,7 +112,7 @@ Research the company website${socialLinks.length > 0 ? " and social media profil
 - Their unique value proposition
 
 STEP 2 - FIND MATCHING CLIENTS:
-Based on your deep understanding of this business, find 10 real companies ${locationContext} ${industryContext} that would be ideal customers. For each company, provide:
+Based on your deep understanding of this business${brandAnalysis ? " and the provided brand analysis" : ""}, find 10 real companies ${locationContext} ${industryContext} that would be ideal customers. For each company, provide:
 1. Company Name
 2. Contact Person (a real decision-maker if findable, otherwise the likely title)
 3. Their Role/Title
