@@ -108,6 +108,8 @@ export default function SupportChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [showNudge, setShowNudge] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -119,9 +121,24 @@ export default function SupportChatWidget() {
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
+      setShowNudge(false);
+      setIsPulsing(false);
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
+
+  // After 5 seconds, show nudge tooltip + start pulse — dismiss on open
+  useEffect(() => {
+    const pulseTimer = setTimeout(() => setIsPulsing(true), 5000);
+    const nudgeTimer = setTimeout(() => setShowNudge(true), 5500);
+    // Auto-hide nudge after 8 seconds
+    const hideTimer = setTimeout(() => setShowNudge(false), 13500);
+    return () => {
+      clearTimeout(pulseTimer);
+      clearTimeout(nudgeTimer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -317,44 +334,75 @@ export default function SupportChatWidget() {
         )}
       </AnimatePresence>
 
-      {/* Bubble button */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen((v) => !v)}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
-        aria-label="Open support chat"
-      >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.span
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+      {/* Nudge tooltip */}
+      <AnimatePresence>
+        {showNudge && !isOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: 10, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 10, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 400, damping: 28 }}
+            className="mb-1 mr-2 flex items-center gap-2 rounded-2xl rounded-br-sm border border-border bg-background px-4 py-2.5 shadow-lg"
+          >
+            <Bot className="h-4 w-4 shrink-0 text-primary" />
+            <p className="text-sm font-medium text-foreground whitespace-nowrap">
+              Need help? Ask me anything 👋
+            </p>
+            <button
+              onClick={() => setShowNudge(false)}
+              className="ml-1 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Dismiss"
             >
-              <X className="h-6 w-6" />
-            </motion.span>
-          ) : (
-            <motion.span
-              key="open"
-              initial={{ rotate: 90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: -90, opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            >
-              <MessageCircle className="h-6 w-6" />
-            </motion.span>
-          )}
-        </AnimatePresence>
-
-        {hasUnread && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-            1
-          </span>
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </motion.div>
         )}
-      </motion.button>
+      </AnimatePresence>
+
+      {/* Bubble button */}
+      <div className="relative">
+        {/* Pulse ring */}
+        {isPulsing && !isOpen && (
+          <span className="absolute inset-0 rounded-full animate-ping bg-primary/40 pointer-events-none" />
+        )}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen((v) => !v)}
+          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-shadow"
+          aria-label="Open support chat"
+        >
+          <AnimatePresence mode="wait">
+            {isOpen ? (
+              <motion.span
+                key="close"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <X className="h-6 w-6" />
+              </motion.span>
+            ) : (
+              <motion.span
+                key="open"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <MessageCircle className="h-6 w-6" />
+              </motion.span>
+            )}
+          </AnimatePresence>
+
+          {hasUnread && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+              1
+            </span>
+          )}
+        </motion.button>
+      </div>
     </div>
   );
 }
