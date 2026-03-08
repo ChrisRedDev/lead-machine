@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -9,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Globe, Facebook, Instagram, Linkedin, Brain, RefreshCw, CheckCircle2,
   Building, MapPin, Users, Loader2, Sparkles, Target, TrendingUp,
-  ChevronDown, ChevronUp, Zap, Shield
+  ChevronDown, ChevronUp, Zap, Shield, AlertTriangle, Check, X
 } from "lucide-react";
 import { toast } from "sonner";
 
