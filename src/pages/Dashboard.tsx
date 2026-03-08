@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,15 +6,47 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Globe, FileText, MapPin, Building, Users, Loader2, Sparkles, Brain, Target, Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin, ChevronDown, ChevronUp, Copy, Mail, Download } from "lucide-react";
+import {
+  ArrowRight, Globe, FileText, MapPin, Building, Users, Sparkles, Brain, Target,
+  Lock, TrendingUp, BarChart3, Briefcase, Facebook, Instagram, Linkedin,
+  ChevronDown, ChevronUp, Copy, Mail, Download, CheckCircle, ExternalLink, Phone,
+  Check
+} from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 type GenerationStep = "form" | "generating" | "results";
-
 const FREE_LEADS = 10;
+
+// Radial SVG score ring
+const ScoreRing = ({ score, size = 48 }: { score: number; size?: number }) => {
+  const r = (size - 6) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (score / 100) * circ;
+  const color = score >= 90 ? "hsl(var(--success))" : score >= 80 ? "hsl(var(--primary))" : "hsl(var(--warning))";
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0 -rotate-90">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
+      <circle
+        cx={size / 2} cy={size / 2} r={r} fill="none"
+        stroke={color} strokeWidth="3"
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: "stroke-dashoffset 0.8s ease" }}
+      />
+      <text
+        x={size / 2} y={size / 2}
+        textAnchor="middle" dominantBaseline="central"
+        fontSize={size * 0.26} fontWeight="700"
+        fill={color}
+        style={{ transform: `rotate(90deg)`, transformOrigin: `${size / 2}px ${size / 2}px` }}
+      >
+        {score}
+      </text>
+    </svg>
+  );
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,9 +54,11 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const [step, setStep] = useState<GenerationStep>("form");
   const [currentStatus, setCurrentStatus] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
   const [unlocked, setUnlocked] = useState(false);
   const [expandedLead, setExpandedLead] = useState<number | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [form, setForm] = useState({
     companyUrl: "",
     description: "",
@@ -44,6 +78,26 @@ const Dashboard = () => {
     { icon: Sparkles, text: t("generating.step5"), color: "text-success" },
   ];
 
+  // Auto-fill form from saved profile
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("*").eq("user_id", user.id).single().then(({ data }) => {
+      if (data) {
+        setForm({
+          companyUrl: data.company_url || "",
+          description: data.company_description || "",
+          targetLocation: data.target_location || "",
+          targetIndustry: data.target_industry || "",
+          idealClient: data.ideal_client_description || "",
+          facebookUrl: data.facebook_url || "",
+          instagramUrl: data.instagram_url || "",
+          linkedinUrl: data.linkedin_url || "",
+        });
+        if (data.company_url || data.company_description) setProfileLoaded(true);
+      }
+    });
+  }, [user]);
+
   const handleGenerate = async () => {
     if (!form.companyUrl || !form.description) {
       toast.error("Please fill in required fields.");
@@ -52,9 +106,11 @@ const Dashboard = () => {
 
     setStep("generating");
     setCurrentStatus(0);
+    setCompletedSteps([]);
 
     const statusInterval = setInterval(() => {
       setCurrentStatus((prev) => {
+        setCompletedSteps((c) => (c.includes(prev) ? c : [...c, prev]));
         if (prev >= statusMessages.length - 1) {
           clearInterval(statusInterval);
           return prev;
@@ -96,6 +152,7 @@ const Dashboard = () => {
         lead_count: generatedLeads.length,
       });
 
+      // Save profile silently
       await supabase.from("profiles").update({
         company_url: form.companyUrl,
         company_description: form.description,
@@ -130,9 +187,7 @@ const Dashboard = () => {
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = "leads.csv";
-    a.click();
+    a.href = url; a.download = "leads.csv"; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -141,9 +196,7 @@ const Dashboard = () => {
     const blob = new Blob([JSON.stringify(visibleLeads, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = "leads.json";
-    a.click();
+    a.href = url; a.download = "leads.json"; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -151,7 +204,7 @@ const Dashboard = () => {
     const visibleLeads = unlocked ? leads : leads.slice(0, FREE_LEADS);
     const emails = visibleLeads.map((l: any) => l.email).filter(Boolean).join(", ");
     navigator.clipboard.writeText(emails);
-    toast.success(`${emails.split(",").length} emails copied!`);
+    toast.success(`${visibleLeads.filter((l: any) => l.email).length} emails copied!`);
   };
 
   const getScoreColor = (score: number | string) => {
@@ -175,7 +228,10 @@ const Dashboard = () => {
     : 0;
 
   const topIndustry = leads.length > 0
-    ? Object.entries(leads.reduce((acc: Record<string, number>, l: any) => { acc[l.industry || "Other"] = (acc[l.industry || "Other"] || 0) + 1; return acc; }, {})).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || "N/A"
+    ? Object.entries(leads.reduce((acc: Record<string, number>, l: any) => {
+        acc[l.industry || "Other"] = (acc[l.industry || "Other"] || 0) + 1;
+        return acc;
+      }, {})).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || "N/A"
     : "N/A";
 
   return (
@@ -183,11 +239,25 @@ const Dashboard = () => {
       <DashboardHeader title={t("generate.title")} />
       <main className="p-4 lg:p-6 max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
+
+          {/* ── FORM ── */}
           {step === "form" && (
             <motion.div key="form" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="space-y-5">
-              <div>
-                <h2 className="text-xl font-display font-bold tracking-tight mb-1">{t("generate.title")}</h2>
-                <p className="text-sm text-muted-foreground">{t("generate.subtitle")}</p>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-xl font-display font-bold tracking-tight mb-1">{t("generate.title")}</h2>
+                  <p className="text-sm text-muted-foreground">{t("generate.subtitle")}</p>
+                </div>
+                {profileLoaded && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-success/10 border border-success/20 text-success text-xs font-medium shrink-0"
+                  >
+                    <CheckCircle className="w-3 h-3" />
+                    Profile auto-filled
+                  </motion.div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -204,20 +274,20 @@ const Dashboard = () => {
                 {/* Social media links */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1">
-                      <Facebook className="w-3.5 h-3.5 text-[hsl(210,80%,51%)]" /> Facebook
+                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1.5">
+                      <Facebook className="w-3.5 h-3.5 text-info" /> Facebook
                     </label>
                     <Input placeholder="facebook.com/company" value={form.facebookUrl} onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })} className="h-10 rounded-xl bg-secondary border-border text-sm" />
                   </div>
                   <div>
-                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1">
-                      <Instagram className="w-3.5 h-3.5 text-[hsl(340,75%,55%)]" /> Instagram
+                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1.5">
+                      <Instagram className="w-3.5 h-3.5 text-accent" /> Instagram
                     </label>
                     <Input placeholder="instagram.com/company" value={form.instagramUrl} onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })} className="h-10 rounded-xl bg-secondary border-border text-sm" />
                   </div>
                   <div>
-                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1">
-                      <Linkedin className="w-3.5 h-3.5 text-[hsl(210,80%,51%)]" /> LinkedIn
+                    <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1.5">
+                      <Linkedin className="w-3.5 h-3.5 text-info" /> LinkedIn
                     </label>
                     <Input placeholder="linkedin.com/company/..." value={form.linkedinUrl} onChange={(e) => setForm({ ...form, linkedinUrl: e.target.value })} className="h-10 rounded-xl bg-secondary border-border text-sm" />
                   </div>
@@ -266,65 +336,93 @@ const Dashboard = () => {
             </motion.div>
           )}
 
+          {/* ── GENERATING (inline, no fullscreen takeover) ── */}
           {step === "generating" && (
-            <motion.div key="generating" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
-              <div className="text-center max-w-sm w-full px-4">
-                <div className="mb-10">
-                  <div className="w-16 h-16 rounded-full border border-border flex items-center justify-center mx-auto relative">
-                    <Loader2 className="w-7 h-7 text-primary animate-spin" />
-                    <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse-soft" />
+            <motion.div key="generating" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
+              <div className="border border-border rounded-2xl bg-card p-8 max-w-md mx-auto mt-8">
+                {/* Animated ring */}
+                <div className="flex items-center justify-center mb-8">
+                  <div className="relative w-24 h-24">
+                    <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="42" fill="none" stroke="hsl(var(--border))" strokeWidth="4" />
+                      <circle
+                        cx="48" cy="48" r="42" fill="none"
+                        stroke="hsl(var(--primary))" strokeWidth="4"
+                        strokeDasharray={2 * Math.PI * 42}
+                        strokeDashoffset={2 * Math.PI * 42 * (1 - (currentStatus + 1) / statusMessages.length)}
+                        strokeLinecap="round"
+                        style={{ transition: "stroke-dashoffset 0.6s ease" }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl font-bold font-display text-primary">
+                        {Math.round(((currentStatus + 1) / statusMessages.length) * 100)}%
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentStatus}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center gap-2.5 text-sm text-muted-foreground justify-center mb-6"
-                  >
-                    {(() => {
-                      const Icon = statusMessages[currentStatus].icon;
-                      return <Icon className={`w-4 h-4 ${statusMessages[currentStatus].color}`} />;
-                    })()}
-                    <span>{statusMessages[currentStatus].text}</span>
-                  </motion.div>
-                </AnimatePresence>
+                <h3 className="text-center text-[15px] font-display font-semibold mb-6">AI is researching your leads…</h3>
 
-                <Progress value={((currentStatus + 1) / statusMessages.length) * 100} className="h-2 bg-secondary" />
-                <p className="text-xs text-muted-foreground mt-2">
-                  {Math.round(((currentStatus + 1) / statusMessages.length) * 100)}%
-                </p>
+                {/* Step list */}
+                <div className="space-y-3">
+                  {statusMessages.map((s, i) => {
+                    const isDone = completedSteps.includes(i) && i !== currentStatus;
+                    const isActive = i === currentStatus;
+                    const isPending = i > currentStatus;
+                    const Icon = s.icon;
+                    return (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: isPending ? 0.35 : 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isActive ? "bg-primary/10 border border-primary/20" : "border border-transparent"}`}
+                      >
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${isDone ? "bg-success/20" : isActive ? "bg-primary/20" : "bg-secondary"}`}>
+                          {isDone
+                            ? <Check className="w-3.5 h-3.5 text-success" />
+                            : <Icon className={`w-3.5 h-3.5 ${isActive ? s.color : "text-muted-foreground"}`} />
+                          }
+                        </div>
+                        <span className={`text-sm ${isActive ? "font-medium text-foreground" : isDone ? "text-muted-foreground line-through" : "text-muted-foreground"}`}>
+                          {s.text}
+                        </span>
+                        {isActive && (
+                          <motion.div
+                            className="ml-auto w-1.5 h-1.5 rounded-full bg-primary"
+                            animate={{ opacity: [1, 0.3, 1] }}
+                            transition={{ repeat: Infinity, duration: 1 }}
+                          />
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <p className="text-center text-xs text-muted-foreground mt-6">This usually takes 20–40 seconds</p>
               </div>
             </motion.div>
           )}
 
+          {/* ── RESULTS ── */}
           {step === "results" && (
             <motion.div key="results" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
               {/* Summary cards */}
               <div className="grid grid-cols-3 gap-3 mb-6">
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-xl border border-border bg-card p-4 hover-lift">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Total Leads</span>
-                  </div>
-                  <p className="text-2xl font-bold font-display">{leads.length}</p>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-xl border border-border bg-card p-4 hover-lift">
-                  <div className="flex items-center gap-2 mb-2">
-                    <BarChart3 className="w-4 h-4 text-success" />
-                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Avg Score</span>
-                  </div>
-                  <p className={`text-2xl font-bold font-display ${getScoreColor(avgScore)}`}>{avgScore}%</p>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-xl border border-border bg-card p-4 hover-lift">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Briefcase className="w-4 h-4 text-warning" />
-                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Top Industry</span>
-                  </div>
-                  <p className="text-sm font-semibold font-display truncate">{topIndustry}</p>
-                </motion.div>
+                {[
+                  { icon: TrendingUp, label: "Total Leads", value: leads.length, color: "text-primary", extra: null },
+                  { icon: BarChart3, label: "Avg Score", value: `${avgScore}%`, color: getScoreColor(avgScore), extra: null },
+                  { icon: Briefcase, label: "Top Industry", value: topIndustry, color: "text-warning", extra: null },
+                ].map((s, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} className="rounded-xl border border-border bg-card p-4 hover-lift">
+                    <div className="flex items-center gap-2 mb-2">
+                      <s.icon className={`w-4 h-4 ${s.color}`} />
+                      <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{s.label}</span>
+                    </div>
+                    <p className={`text-2xl font-bold font-display truncate ${s.color}`}>{s.value}</p>
+                  </motion.div>
+                ))}
               </div>
 
               <div className="flex items-center justify-between mb-4">
@@ -357,31 +455,50 @@ const Dashboard = () => {
                       key={i}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
+                      transition={{ delay: i * 0.04 }}
                       className="border border-border rounded-xl bg-card overflow-hidden hover-lift cursor-pointer"
                       onClick={() => setExpandedLead(isExpanded ? null : i)}
                     >
                       <div className="p-4 flex items-center gap-3">
-                        {/* Company initial */}
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${getScoreBg(score)}`}>
-                          <span className={getScoreColor(score)}>
-                            {(lead.company_name || "?")[0].toUpperCase()}
-                          </span>
-                        </div>
+                        {/* Score ring */}
+                        <ScoreRing score={score} size={52} />
+
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold truncate">{lead.company_name}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-sm font-semibold">{lead.company_name}</h4>
                             {i < 3 && (
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-success/10 text-success animate-pulse-soft">New</span>
                             )}
+                            {lead.industry && (
+                              <span className="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-accent/10 text-accent border border-accent/20">{lead.industry}</span>
+                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">{lead.contact_person} · {lead.role}</p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">{lead.contact_person} · {lead.role}</p>
                         </div>
-                        {/* Score badge */}
-                        <div className={`px-2.5 py-1 rounded-lg border text-xs font-bold ${getScoreBg(score)} ${getScoreColor(score)}`}>
-                          {score}%
+
+                        {/* Quick actions */}
+                        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {lead.email && (
+                            <button
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-secondary transition-colors"
+                              title={lead.email}
+                              onClick={() => { navigator.clipboard.writeText(lead.email); toast.success("Email copied!"); }}
+                            >
+                              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                            </button>
+                          )}
+                          {lead.website && (
+                            <a
+                              href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
+                              target="_blank" rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-secondary transition-colors"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+                            </a>
+                          )}
                         </div>
-                        {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+
+                        {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
                       </div>
 
                       <AnimatePresence>
@@ -392,34 +509,50 @@ const Dashboard = () => {
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <div className="px-4 pb-4 pt-0 border-t border-border/50 mt-0">
+                            <div className="px-4 pb-4 border-t border-border/50">
                               <div className="grid grid-cols-2 gap-3 mt-3 text-[13px]">
                                 <div>
                                   <span className="text-muted-foreground text-xs">Email</span>
-                                  <p className="font-medium flex items-center gap-1">
-                                    {lead.email}
-                                    <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(lead.email || ""); toast.success("Copied!"); }}>
-                                      <Copy className="w-3 h-3 text-muted-foreground hover:text-foreground" />
-                                    </button>
+                                  <p className="font-medium flex items-center gap-1.5 mt-0.5">
+                                    <span className="truncate">{lead.email || "—"}</span>
+                                    {lead.email && (
+                                      <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(lead.email); toast.success("Copied!"); }}>
+                                        <Copy className="w-3 h-3 text-muted-foreground hover:text-foreground shrink-0" />
+                                      </button>
+                                    )}
                                   </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground text-xs">Phone</span>
-                                  <p className="font-medium">{lead.phone || "N/A"}</p>
+                                  <p className="font-medium mt-0.5 flex items-center gap-1.5">
+                                    {lead.phone || "—"}
+                                    {lead.phone && <Phone className="w-3 h-3 text-muted-foreground" />}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground text-xs">Website</span>
-                                  <p className="font-medium truncate">{lead.website || "N/A"}</p>
+                                  <p className="font-medium mt-0.5">
+                                    {lead.website ? (
+                                      <a
+                                        href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="text-primary hover:underline truncate block"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {lead.website}
+                                      </a>
+                                    ) : "—"}
+                                  </p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground text-xs">Industry</span>
-                                  <p className="font-medium">{lead.industry}</p>
+                                  <p className="font-medium mt-0.5">{lead.industry || "—"}</p>
                                 </div>
                               </div>
                               {lead.fit_reason && (
-                                <div className="mt-3 p-3 rounded-lg bg-secondary/50">
-                                  <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Why they fit</span>
-                                  <p className="text-sm text-foreground mt-1">{lead.fit_reason}</p>
+                                <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                                  <span className="text-[11px] text-primary/70 uppercase tracking-wider font-semibold">Why they fit</span>
+                                  <p className="text-sm text-foreground mt-1 leading-relaxed">{lead.fit_reason}</p>
                                 </div>
                               )}
                             </div>
@@ -433,9 +566,9 @@ const Dashboard = () => {
                 {/* Locked leads */}
                 {!unlocked && leads.length > FREE_LEADS && (
                   <>
-                    {leads.slice(FREE_LEADS, FREE_LEADS + 3).map((lead: any, i: number) => (
+                    {leads.slice(FREE_LEADS, FREE_LEADS + 3).map((_: any, i: number) => (
                       <div key={`locked-${i}`} className="border border-border rounded-xl bg-card p-4 flex items-center gap-3 blur-[4px] select-none opacity-50">
-                        <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">?</div>
+                        <div className="w-[52px] h-[52px] rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">?</div>
                         <div className="flex-1">
                           <div className="h-3 bg-muted rounded w-32 mb-1.5" />
                           <div className="h-2.5 bg-muted/60 rounded w-48" />
@@ -443,26 +576,24 @@ const Dashboard = () => {
                         <div className="px-2.5 py-1 rounded-lg bg-muted text-xs font-bold text-muted-foreground">??%</div>
                       </div>
                     ))}
-                    <div className="relative mt-2">
-                      <div className="border border-border rounded-2xl p-8 text-center bg-card">
-                        <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse-soft">
-                          <Lock className="w-5 h-5 text-primary" />
-                        </div>
-                        <h3 className="text-[15px] font-display font-bold mb-1">
-                          {t("results.unlockTitle", { count: leads.length - FREE_LEADS })}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mb-1">{t("results.unlockSubtitle")}</p>
-                        <p className="text-xs text-muted-foreground/70 mb-5 italic">{t("results.unlockOnlyVisible")}</p>
-                        <Button
-                          className="h-11 px-8 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-300 hover:shadow-[0_8px_30px_-4px_hsl(234,89%,64%,0.4)]"
-                          onClick={() => {
-                            toast.info("Stripe checkout will be integrated soon. Unlocking for preview...");
-                            setUnlocked(true);
-                          }}
-                        >
-                          Unlock Full List — $79
-                        </Button>
+                    <div className="border border-border rounded-2xl p-8 text-center bg-card">
+                      <div className="w-12 h-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse-soft">
+                        <Lock className="w-5 h-5 text-primary" />
                       </div>
+                      <h3 className="text-[15px] font-display font-bold mb-1">
+                        {t("results.unlockTitle", { count: leads.length - FREE_LEADS })}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mb-1">{t("results.unlockSubtitle")}</p>
+                      <p className="text-xs text-muted-foreground/70 mb-5 italic">{t("results.unlockOnlyVisible")}</p>
+                      <Button
+                        className="h-11 px-8 rounded-xl text-sm font-medium bg-gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-300 hover:shadow-[0_8px_30px_-4px_hsl(234,89%,64%,0.4)]"
+                        onClick={() => {
+                          toast.info("Stripe checkout will be integrated soon. Unlocking for preview...");
+                          setUnlocked(true);
+                        }}
+                      >
+                        Unlock Full List — $79
+                      </Button>
                     </div>
                   </>
                 )}
@@ -473,6 +604,7 @@ const Dashboard = () => {
               </Button>
             </motion.div>
           )}
+
         </AnimatePresence>
       </main>
     </>

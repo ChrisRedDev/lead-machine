@@ -95,7 +95,7 @@
   }
 
   .animate-float-delayed {
-    animation: float 6s ease-in-out 2s infinite;
+    animation: float-delayed 6s ease-in-out 2s infinite;
   }
 
   .animate-shimmer {

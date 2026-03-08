@@ -20,7 +20,7 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
@@ -28,7 +28,7 @@ serve(async (req) => {
     const token = authHeader.replace("Bearer ", "");
     const { data: { user }, error: authError } = await createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!
+      Deno.env.get("SUPABASE_ANON_KEY")!
     ).auth.getUser(token);
 
     if (authError || !user) {
@@ -39,9 +39,9 @@ serve(async (req) => {
     }
 
     // Check credits
-    const { data: creditData } = await supabase
+    const { data: creditData } = await supabaseAdmin
       .from("credits")
-      .select("balance")
+      .select("balance, total_used")
       .eq("user_id", user.id)
       .single();
 
@@ -70,7 +70,7 @@ serve(async (req) => {
     }
 
     // Build social media context
-    const socialLinks = [];
+    const socialLinks: string[] = [];
     if (facebookUrl) socialLinks.push(`Facebook: ${facebookUrl}`);
     if (instagramUrl) socialLinks.push(`Instagram: ${instagramUrl}`);
     if (linkedinUrl) socialLinks.push(`LinkedIn: ${linkedinUrl}`);
@@ -82,7 +82,6 @@ serve(async (req) => {
     const industryContext = targetIndustry ? `in the ${targetIndustry} industry` : "";
     const clientContext = idealClient ? `Ideal client: ${idealClient}.` : "";
 
-    // Phase 1: Deep research prompt that analyzes the business from all sources
     const prompt = `I need to find potential B2B clients for a company. First, deeply analyze their business from these sources, then find matching clients.
 
 Company website: ${companyUrl}
@@ -151,7 +150,7 @@ Only include real, existing companies with publicly available information. Forma
     const content = perplexityData.choices?.[0]?.message?.content || "";
 
     // Parse the JSON from the response
-    let leads = [];
+    let leads: any[] = [];
     try {
       const jsonMatch = content.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
@@ -190,12 +189,20 @@ Only include real, existing companies with publicly available information. Forma
       }
     }
 
-    // Deduct credit
-    await supabase
+    // Only deduct a credit if we got at least one lead back
+    if (leads.length === 0) {
+      return new Response(JSON.stringify({ error: "No leads could be found for this query. No credits were deducted. Try adjusting your description or target location." }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Deduct credit only after successfully returning leads
+    await supabaseAdmin
       .from("credits")
       .update({
         balance: creditData.balance - 1,
-        total_used: (creditData as any).total_used + 1,
+        total_used: creditData.total_used + 1,
       })
       .eq("user_id", user.id);
 
