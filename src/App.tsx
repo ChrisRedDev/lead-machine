@@ -66,6 +66,7 @@ const App = () => (
                   <Route path="pipeline" element={<DashboardPipeline />} />
                   <Route path="exports" element={<DashboardExports />} />
                   <Route path="credits" element={<DashboardCredits />} />
+                  <Route path="referral" element={<DashboardReferral />} />
                   <Route path="billing" element={<DashboardBilling />} />
                   <Route path="settings" element={<DashboardSettings />} />
                 </Route>
