@@ -93,6 +93,17 @@ const LeadCard = ({
     (lead.score || 0) >= 80 ? "text-primary" :
     (lead.score || 0) >= 70 ? "text-warning" : "text-muted-foreground";
 
+  const scoreBadge =
+    (lead.score || 0) >= 90 ? "bg-success/10 text-success border-success/25" :
+    (lead.score || 0) >= 80 ? "bg-primary/10 text-primary border-primary/25" :
+    (lead.score || 0) >= 70 ? "bg-warning/10 text-warning border-warning/25" :
+    "bg-muted text-muted-foreground border-border";
+
+  const scoreLabel =
+    (lead.score || 0) >= 90 ? "High" :
+    (lead.score || 0) >= 80 ? "Good" :
+    (lead.score || 0) >= 70 ? "Mid" : "Low";
+
   return (
     <div
       ref={setNodeRef}
