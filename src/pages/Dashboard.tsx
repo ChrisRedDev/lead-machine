@@ -324,6 +324,7 @@ const Dashboard = () => {
   }, [user]);
 
   const generationApiDone = useRef(false);
+  const timerStepRef = useRef(0);
 
   const handleGenerate = async () => {
     if (!form.companyUrl || !form.description) {
@@ -335,22 +336,24 @@ const Dashboard = () => {
     setCurrentStatus(0);
     setCompletedSteps([]);
     generationApiDone.current = false;
+    timerStepRef.current = 0;
 
-    // Advance steps 0–3 on timer, hold at step 3 until API responds
-    let timerStep = 0;
-    const MAX_TIMER_STEP = statusMessages.length - 2; // hold 1 step back
+    // Advance steps 0–(n-2) on a ~7s interval, hold at second-to-last until API responds
+    // For 5 steps: steps 0,1,2,3 auto-advance; step 4 waits for API
+    const MAX_TIMER_STEP = statusMessages.length - 2;
     const statusInterval = setInterval(() => {
       if (generationApiDone.current) {
         clearInterval(statusInterval);
         return;
       }
-      if (timerStep < MAX_TIMER_STEP) {
-        const next = timerStep + 1;
-        setCompletedSteps(c => c.includes(timerStep) ? c : [...c, timerStep]);
+      if (timerStepRef.current < MAX_TIMER_STEP) {
+        const current = timerStepRef.current;
+        const next = current + 1;
+        setCompletedSteps(c => c.includes(current) ? c : [...c, current]);
         setCurrentStatus(next);
-        timerStep = next;
+        timerStepRef.current = next;
       }
-    }, 6000);
+    }, 7000);
 
     try {
       const { data, error } = await supabase.functions.invoke("generate-leads", {
@@ -378,7 +381,8 @@ const Dashboard = () => {
       }
 
       // Flash remaining steps quickly then show results
-      for (let i = timerStep; i < statusMessages.length; i++) {
+      const startStep = timerStepRef.current;
+      for (let i = startStep; i < statusMessages.length; i++) {
         setCompletedSteps(c => c.includes(i) ? c : [...c, i]);
         setCurrentStatus(i);
         await new Promise(r => setTimeout(r, 300));
