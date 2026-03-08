@@ -359,17 +359,33 @@ const DashboardCampaigns = () => {
             <div className="mt-3 p-3 rounded-xl bg-secondary border border-border text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
               {activeCampaign.body}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="mt-3 h-8 text-xs rounded-lg"
-              onClick={() => {
-                navigator.clipboard.writeText(`Subject: ${activeCampaign.subject}\n\n${activeCampaign.body}`);
-                toast.success("Template copied!");
-              }}
-            >
-              <Copy className="w-3 h-3 mr-1.5" />Copy Template
-            </Button>
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs rounded-lg"
+                onClick={() => {
+                  navigator.clipboard.writeText(`Subject: ${activeCampaign.subject}\n\n${activeCampaign.body}`);
+                  toast.success("Template copied!");
+                }}
+              >
+                <Copy className="w-3 h-3 mr-1.5" />Copy Template
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs rounded-lg"
+                onClick={() => {
+                  const emails = campaignLeads.map((l) => l.email).filter(Boolean).join(",");
+                  if (!emails) { toast.error("No emails in this campaign"); return; }
+                  const subject = encodeURIComponent(activeCampaign.subject);
+                  const body = encodeURIComponent(activeCampaign.body);
+                  window.open(`mailto:?bcc=${emails}&subject=${subject}&body=${body}`, "_blank");
+                }}
+              >
+                <Mail className="w-3 h-3 mr-1.5" />Send to All (BCC)
+              </Button>
+            </div>
           </Card>
 
           {/* Leads */}
