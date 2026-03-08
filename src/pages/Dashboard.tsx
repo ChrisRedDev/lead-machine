@@ -132,6 +132,7 @@ const Dashboard = () => {
           facebookUrl: form.facebookUrl,
           instagramUrl: form.instagramUrl,
           linkedinUrl: form.linkedinUrl,
+          brandAnalysis: brandAnalysis || undefined,
         },
       });
 
