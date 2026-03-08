@@ -59,6 +59,8 @@ const DashboardExports = () => {
   const [loading, setLoading] = useState(true);
   const [selectedExport, setSelectedExport] = useState<Export | null>(null);
   const [search, setSearch] = useState("");
+  const [scoreFilter, setScoreFilter] = useState<"all" | "high" | "good" | "medium">("all");
+  const [leadSearch, setLeadSearch] = useState("");
 
   useEffect(() => {
     if (user) fetchExports();
