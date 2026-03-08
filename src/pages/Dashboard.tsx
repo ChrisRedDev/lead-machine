@@ -856,6 +856,15 @@ const Dashboard = () => {
 
                         {/* Quick actions */}
                         <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {/* Add to Pipeline button */}
+                          <button
+                            className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-success/10 hover:bg-success/20 transition-colors text-success"
+                            title="Add to Pipeline"
+                            onClick={() => addToPipeline(lead)}
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span className="text-[11px] font-medium hidden sm:inline">Pipeline</span>
+                          </button>
                           {/* Write cold email button */}
                           <button
                             className="flex items-center gap-1 px-2.5 h-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-primary"
