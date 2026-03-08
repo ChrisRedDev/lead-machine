@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain } from "lucide-react";
+import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Kanban, Gift } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,10 +22,14 @@ const DashboardMobileNav = () => {
   }, [user]);
 
   const navItems = [
-    { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard" },
+    { icon: BarChart3, label: "Overview", path: "/dashboard" },
+    { icon: Rocket, label: t("dashboard.generateLeads"), path: "/dashboard/generate" },
     { icon: Brain, label: "AI Research", path: "/dashboard/research" },
+    { icon: Mail, label: "Campaigns", path: "/dashboard/campaigns" },
+    { icon: Kanban, label: "Pipeline", path: "/dashboard/pipeline" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
     { icon: Coins, label: t("dashboard.credits"), path: "/dashboard/credits" },
+    { icon: Gift, label: "Referral", path: "/dashboard/referral" },
     { icon: CreditCard, label: t("dashboard.billing"), path: "/dashboard/billing" },
     { icon: Settings, label: t("dashboard.settings"), path: "/dashboard/settings" },
   ];
@@ -41,7 +45,7 @@ const DashboardMobileNav = () => {
         <span className="font-display font-bold text-[15px]">LeadMachine AI</span>
       </div>
 
-      <nav className="flex-1 px-3 space-y-0.5">
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
           return (
