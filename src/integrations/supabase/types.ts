@@ -14,6 +14,106 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_leads: {
+        Row: {
+          campaign_id: string
+          company_name: string | null
+          contact_name: string | null
+          contacted_at: string | null
+          created_at: string
+          email: string | null
+          fit_reason: string | null
+          id: string
+          industry: string | null
+          lead_index: number
+          role: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          company_name?: string | null
+          contact_name?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          email?: string | null
+          fit_reason?: string | null
+          id?: string
+          industry?: string | null
+          lead_index: number
+          role?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          company_name?: string | null
+          contact_name?: string | null
+          contacted_at?: string | null
+          created_at?: string
+          email?: string | null
+          fit_reason?: string | null
+          id?: string
+          industry?: string | null
+          lead_index?: number
+          role?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          body: string
+          created_at: string
+          export_id: string | null
+          id: string
+          name: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          export_id?: string | null
+          id?: string
+          name: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          export_id?: string | null
+          id?: string
+          name?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_export_id_fkey"
+            columns: ["export_id"]
+            isOneToOne: false
+            referencedRelation: "lead_exports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           ai_response: string | null
@@ -103,6 +203,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lead_pipeline: {
+        Row: {
+          company_name: string | null
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          export_id: string | null
+          fit_reason: string | null
+          id: string
+          industry: string | null
+          lead_index: number
+          notes: string | null
+          role: string | null
+          score: number | null
+          stage: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          export_id?: string | null
+          fit_reason?: string | null
+          id?: string
+          industry?: string | null
+          lead_index: number
+          notes?: string | null
+          role?: string | null
+          score?: number | null
+          stage?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          export_id?: string | null
+          fit_reason?: string | null
+          id?: string
+          industry?: string | null
+          lead_index?: number
+          notes?: string | null
+          role?: string | null
+          score?: number | null
+          stage?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_pipeline_export_id_fkey"
+            columns: ["export_id"]
+            isOneToOne: false
+            referencedRelation: "lead_exports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

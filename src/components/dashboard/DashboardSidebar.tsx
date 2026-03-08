@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Users, Plug } from "lucide-react";
+import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Users, Plug, Kanban } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,6 +27,7 @@ const DashboardSidebar = () => {
     { icon: Brain, label: "AI Research", path: "/dashboard/research" },
     { icon: BarChart3, label: "Analytics", path: "/dashboard/analytics" },
     { icon: Mail, label: "Campaigns", path: "/dashboard/campaigns" },
+    { icon: Kanban, label: "Pipeline", path: "/dashboard/pipeline" },
     { icon: Users, label: "Team", path: "/dashboard/team" },
     { icon: Plug, label: "Integrations", path: "/dashboard/integrations" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
