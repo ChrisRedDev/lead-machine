@@ -182,35 +182,20 @@ const DashboardExports = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div>
-                <Button variant="ghost" size="sm" className="text-[13px] mb-1" onClick={() => setSelectedExport(null)}>
+                <Button variant="ghost" size="sm" className="text-[13px] mb-1" onClick={() => { setSelectedExport(null); setLeadSearch(""); setScoreFilter("all"); }}>
                   ← {t("common.back")}
                 </Button>
                 <h3 className="text-[15px] font-display font-semibold">{selectedExport.name}</h3>
                 <p className="text-xs text-muted-foreground">{selectedExport.lead_count} leads · {new Date(selectedExport.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-xl text-[12px]"
-                  onClick={() => copyAllEmails(selectedExport)}
-                >
+                <Button size="sm" variant="outline" className="h-8 rounded-xl text-[12px]" onClick={() => copyAllEmails(selectedExport)}>
                   <Copy className="w-3 h-3 mr-1.5" />Copy Emails
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-xl text-[12px]"
-                  onClick={() => downloadJSON(selectedExport)}
-                >
+                <Button size="sm" variant="outline" className="h-8 rounded-xl text-[12px]" onClick={() => downloadJSON(selectedExport)}>
                   <FileJson className="w-3 h-3 mr-1.5" />JSON
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 rounded-xl text-[12px]"
-                  onClick={() => openInGoogleSheets(selectedExport)}
-                >
+                <Button size="sm" variant="outline" className="h-8 rounded-xl text-[12px]" onClick={() => openInGoogleSheets(selectedExport)}>
                   <Sheet className="w-3 h-3 mr-1.5" />Google Sheets
                 </Button>
                 <Button size="sm" className="h-8 rounded-xl text-[12px]" onClick={() => downloadCSV(selectedExport)}>
@@ -218,6 +203,47 @@ const DashboardExports = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Filters row */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <div className="relative flex-1 min-w-[180px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Search leads…"
+                  value={leadSearch}
+                  onChange={(e) => setLeadSearch(e.target.value)}
+                  className="pl-9 h-9 rounded-xl bg-secondary border-border text-sm"
+                />
+                {leadSearch && (
+                  <button onClick={() => setLeadSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                {(["all", "high", "good", "medium"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setScoreFilter(f)}
+                    className={`text-[11px] px-2.5 py-1 rounded-lg border capitalize transition-colors ${
+                      scoreFilter === f
+                        ? f === "high" ? "bg-success/15 border-success/30 text-success"
+                          : f === "good" ? "bg-primary/15 border-primary/30 text-primary"
+                          : f === "medium" ? "bg-warning/15 border-warning/30 text-warning"
+                          : "bg-secondary border-border text-foreground"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f === "all" ? "All" : f === "high" ? "High (90+)" : f === "good" ? "Good (80+)" : "Medium (70+)"}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground ml-auto">
+                {filterLeads(selectedExport.leads as Lead[]).length} results
+              </p>
+            </div>
+
             <div className="border border-border/40 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
@@ -227,13 +253,13 @@ const DashboardExports = () => {
                       <th className="text-left font-medium p-3">{t("results.contact")}</th>
                       <th className="text-left font-medium p-3">{t("results.role")}</th>
                       <th className="text-left font-medium p-3">{t("results.email")}</th>
-                      <th className="text-left font-medium p-3 w-20">Score</th>
+                      <th className="text-left font-medium p-3 w-28">AI Score</th>
                       <th className="text-left font-medium p-3">{t("results.industry")}</th>
                       <th className="text-left font-medium p-3">{t("results.fitReason")}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(selectedExport.leads as Lead[]).map((lead, i) => (
+                    {filterLeads(selectedExport.leads as Lead[]).map((lead, i) => (
                       <tr key={i} className="border-b border-border/30 hover:bg-secondary/20 transition-colors">
                         <td className="p-3 font-medium">
                           <div className="flex items-center gap-2">
