@@ -1,16 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { User, Bell, Key, AlertTriangle } from "lucide-react";
+import { User, Bell, Key, AlertTriangle, Building, ExternalLink, Loader2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const DashboardSettings = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState({ email: true, leads: true, marketing: false });
+  const [displayName, setDisplayName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("profiles").select("company_name").eq("user_id", user.id).single().then(({ data }) => {
+      if (data) {
+        setCompanyName(data.company_name || "");
+        setDisplayName(data.company_name || "");
+      }
+      setLoadingProfile(false);
+    });
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ company_name: displayName } as any)
+      .eq("user_id", user.id);
+
+    if (error) {
+      toast.error("Failed to save changes");
+    } else {
+      setCompanyName(displayName);
+      setSaved(true);
+      toast.success("Profile updated!");
+      setTimeout(() => setSaved(false), 2000);
+    }
+    setSaving(false);
+  };
 
   return (
     <>
@@ -25,13 +64,53 @@ const DashboardSettings = () => {
           <div className="p-6 space-y-4">
             <div>
               <label className="text-[13px] font-medium mb-1.5 block">Email</label>
-              <Input value={user?.email || ""} disabled className="h-11 rounded-xl bg-secondary border-border text-sm" />
+              <Input value={user?.email || ""} disabled className="h-11 rounded-xl bg-secondary border-border text-sm opacity-60" />
+              <p className="text-[11px] text-muted-foreground mt-1.5">Email is managed through your sign-in method and cannot be changed here.</p>
             </div>
             <div>
-              <label className="text-[13px] font-medium mb-1.5 block">Display Name</label>
-              <Input placeholder="Your name" className="h-11 rounded-xl bg-secondary border-border text-sm" />
+              <label className="text-[13px] font-medium mb-1.5 block">Display Name / Company</label>
+              {loadingProfile ? (
+                <div className="h-11 rounded-xl bg-secondary animate-pulse" />
+              ) : (
+                <Input
+                  placeholder="Your name or company"
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  className="h-11 rounded-xl bg-secondary border-border text-sm"
+                />
+              )}
             </div>
-            <Button size="sm" className="rounded-xl text-[13px] bg-primary text-primary-foreground hover:bg-primary/90">Save Changes</Button>
+            <Button
+              size="sm"
+              onClick={handleSaveProfile}
+              disabled={saving || loadingProfile || displayName === companyName}
+              className="rounded-xl text-[13px] bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : saved ? <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> : null}
+              {saved ? "Saved!" : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Company Profile Link */}
+        <div className="border border-border rounded-2xl bg-card overflow-hidden">
+          <div className="flex items-center gap-2 px-6 py-4 border-b border-border bg-secondary/30">
+            <Building className="w-4 h-4 text-accent" />
+            <h3 className="text-[15px] font-display font-semibold">Company Profile</h3>
+          </div>
+          <div className="p-6">
+            <p className="text-[13px] text-muted-foreground mb-4">
+              Manage your company's website, social links, target market, and AI brand analysis from the Brand Intelligence page.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-[13px]"
+              onClick={() => navigate("/dashboard/research")}
+            >
+              <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+              Go to Brand Intelligence
+            </Button>
           </div>
         </div>
 
@@ -68,7 +147,7 @@ const DashboardSettings = () => {
             <h3 className="text-[15px] font-display font-semibold">API Key</h3>
           </div>
           <div className="p-6">
-            <p className="text-[13px] text-muted-foreground mb-3">Use your API key to integrate LeadMachine with other tools.</p>
+            <p className="text-[13px] text-muted-foreground mb-3">Use your API key to integrate LeadGlow with other tools.</p>
             <div className="flex gap-2">
               <Input value="lm_sk_••••••••••••••••••••" disabled className="h-11 rounded-xl bg-secondary border-border text-sm font-mono flex-1" />
               <Button variant="outline" size="sm" className="rounded-xl text-[13px] h-11 px-4">Copy</Button>
