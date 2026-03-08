@@ -195,93 +195,29 @@ const HeroSection = () => {
             </motion.p>
           </div>
 
-          {/* RIGHT — interactive mockup */}
+          {/* RIGHT — dashboard screenshot */}
           <div className="relative hidden lg:block">
-            {/* Main card */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="relative rounded-2xl border border-border/60 bg-card overflow-hidden shadow-2xl"
+              initial={{ opacity: 0, x: 30, scale: 0.97 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="relative rounded-2xl border border-border/40 bg-card overflow-hidden shadow-2xl"
             >
-              {/* Card header bar */}
-              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border/50 bg-secondary/40">
+              {/* Browser chrome bar */}
+              <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/50 bg-secondary/60 backdrop-blur-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
                 <span className="w-2.5 h-2.5 rounded-full bg-warning/60" />
                 <span className="w-2.5 h-2.5 rounded-full bg-success/60" />
-                <span className="ml-3 text-[11px] text-muted-foreground font-mono">leadmachine.ai / generate</span>
+                <span className="ml-3 flex-1 text-[11px] text-muted-foreground font-mono bg-secondary/80 rounded px-3 py-0.5">leadmachine.ai/dashboard</span>
               </div>
-
-              {/* Mock content */}
-              <div className="p-5 space-y-4">
-                {/* Input row */}
-                <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3">
-                  <div className="w-2 h-2 rounded-full bg-success animate-pulse-soft" />
-                  <span className="text-[13px] text-muted-foreground font-mono flex-1">yourcompany.com</span>
-                  <span className="text-[11px] px-2 py-0.5 rounded-lg bg-primary/10 text-primary font-medium">Analyzing…</span>
-                </div>
-
-                {/* Progress steps */}
-                <div className="space-y-2">
-                  {[
-                    { label: "Reading your website", done: true },
-                    { label: "Building brand profile", done: true },
-                    { label: "Researching prospects", done: false, active: true },
-                  ].map((step, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + i * 0.15 }}
-                      className="flex items-center gap-3 text-[12px]"
-                    >
-                      {step.done ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-success shrink-0" />
-                      ) : (
-                        <div className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 ${step.active ? "border-primary animate-pulse-soft" : "border-border"}`} />
-                      )}
-                      <span className={step.done ? "text-foreground" : step.active ? "text-primary font-medium" : "text-muted-foreground"}>
-                        {step.label}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Lead cards */}
-                <div className="space-y-2 pt-1">
-                  {[
-                    { company: "Stripe", role: "Head of Growth", score: 97, industry: "FinTech" },
-                    { company: "Vercel", role: "VP Engineering", score: 94, industry: "DevTools" },
-                    { company: "Linear", role: "CEO", score: 91, industry: "SaaS" },
-                  ].map((lead, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.75 + i * 0.12 }}
-                      className="flex items-center justify-between rounded-xl border border-border/50 bg-secondary/30 px-3 py-2.5"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
-                          {lead.company[0]}
-                        </div>
-                        <div>
-                          <p className="text-[12px] font-semibold">{lead.company}</p>
-                          <p className="text-[10px] text-muted-foreground">{lead.role}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-muted-foreground">{lead.industry}</span>
-                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-lg ${
-                          lead.score >= 95 ? "bg-success/15 text-success" : "bg-primary/10 text-primary"
-                        }`}>
-                          {lead.score}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+              <img
+                src={heroDashboard}
+                alt="LeadMachine AI dashboard — AI lead generation interface"
+                className="w-full h-auto object-cover object-top"
+                style={{ maxHeight: "440px" }}
+              />
+              {/* Gradient fade bottom */}
+              <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
             </motion.div>
 
             {/* Floating stat cards */}
