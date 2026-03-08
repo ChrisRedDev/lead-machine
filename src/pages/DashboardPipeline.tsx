@@ -6,10 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Sparkles, Building, User, Mail, ExternalLink, Trash2,
-  MoreHorizontal, Download, RefreshCw, ChevronRight, X, StickyNote
+  MoreHorizontal, Download, RefreshCw, ChevronRight, X, StickyNote, Search, Filter
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -93,6 +94,17 @@ const LeadCard = ({
     (lead.score || 0) >= 80 ? "text-primary" :
     (lead.score || 0) >= 70 ? "text-warning" : "text-muted-foreground";
 
+  const scoreBadge =
+    (lead.score || 0) >= 90 ? "bg-success/10 text-success border-success/25" :
+    (lead.score || 0) >= 80 ? "bg-primary/10 text-primary border-primary/25" :
+    (lead.score || 0) >= 70 ? "bg-warning/10 text-warning border-warning/25" :
+    "bg-muted text-muted-foreground border-border";
+
+  const scoreLabel =
+    (lead.score || 0) >= 90 ? "High" :
+    (lead.score || 0) >= 80 ? "Good" :
+    (lead.score || 0) >= 70 ? "Mid" : "Low";
+
   return (
     <div
       ref={setNodeRef}
@@ -109,7 +121,9 @@ const LeadCard = ({
           <p className="text-[11px] text-muted-foreground truncate">{lead.contact_name} · {lead.role}</p>
         </div>
         {lead.score && (
-          <span className={`text-[11px] font-bold shrink-0 ${scoreColor}`}>{lead.score}</span>
+          <span className={`text-[11px] font-bold shrink-0 px-2 py-0.5 rounded-full border ${scoreBadge}`}>
+            {scoreLabel} · {lead.score}
+          </span>
         )}
       </div>
 
@@ -337,6 +351,8 @@ const DashboardPipeline = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [notesLead, setNotesLead] = useState<PipelineLead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [pipelineSearch, setPipelineSearch] = useState("");
+  const [scoreFilter, setScoreFilter] = useState<"all" | "high" | "good" | "medium">("all");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -419,7 +435,27 @@ const DashboardPipeline = () => {
 
   const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
 
-  const stageLeads = (stage: Stage) => leads.filter((l) => l.stage === stage);
+  const stageLeads = (stage: Stage) => {
+    let filtered = leads.filter((l) => l.stage === stage);
+    if (pipelineSearch.trim()) {
+      const q = pipelineSearch.toLowerCase();
+      filtered = filtered.filter(l =>
+        l.company_name?.toLowerCase().includes(q) ||
+        l.contact_name?.toLowerCase().includes(q) ||
+        l.role?.toLowerCase().includes(q)
+      );
+    }
+    if (scoreFilter !== "all") {
+      filtered = filtered.filter(l => {
+        const n = l.score || 0;
+        if (scoreFilter === "high") return n >= 90;
+        if (scoreFilter === "good") return n >= 80 && n < 90;
+        if (scoreFilter === "medium") return n >= 70 && n < 80;
+        return true;
+      });
+    }
+    return filtered;
+  };
 
   const totalLeads = leads.length;
   const closedLeads = stageLeads("closed").length;
@@ -430,7 +466,7 @@ const DashboardPipeline = () => {
       <DashboardHeader title="Pipeline" />
       <main className="p-4 lg:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-display font-bold tracking-tight">Lead Pipeline</h2>
             <p className="text-sm text-muted-foreground">
@@ -440,6 +476,43 @@ const DashboardPipeline = () => {
           <Button onClick={() => setShowAddModal(true)} className="h-9 rounded-xl bg-gradient-primary text-sm">
             <Plus className="w-4 h-4 mr-1.5" />Add Leads
           </Button>
+        </div>
+
+        {/* Filter bar */}
+        <div className="flex items-center gap-2 mb-5 flex-wrap">
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Search leads…"
+              value={pipelineSearch}
+              onChange={(e) => setPipelineSearch(e.target.value)}
+              className="pl-9 h-9 rounded-xl bg-secondary border-border text-sm"
+            />
+            {pipelineSearch && (
+              <button onClick={() => setPipelineSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+            {(["all", "high", "good", "medium"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setScoreFilter(f)}
+                className={`text-[11px] px-2.5 py-1 rounded-lg border capitalize transition-colors ${
+                  scoreFilter === f
+                    ? f === "high" ? "bg-success/15 border-success/30 text-success"
+                      : f === "good" ? "bg-primary/15 border-primary/30 text-primary"
+                      : f === "medium" ? "bg-warning/15 border-warning/30 text-warning"
+                      : "bg-secondary border-border text-foreground"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {f === "all" ? "All" : f === "high" ? "High" : f === "good" ? "Good" : "Medium"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Stats bar */}

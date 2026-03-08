@@ -28,6 +28,7 @@ import DashboardIntegrations from "./pages/DashboardIntegrations";
 import DashboardPipeline from "./pages/DashboardPipeline";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SupportChatWidget from "./components/SupportChatWidget";
+import DashboardReferral from "./pages/DashboardReferral";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
                   <Route path="pipeline" element={<DashboardPipeline />} />
                   <Route path="exports" element={<DashboardExports />} />
                   <Route path="credits" element={<DashboardCredits />} />
+                  <Route path="referral" element={<DashboardReferral />} />
                   <Route path="billing" element={<DashboardBilling />} />
                   <Route path="settings" element={<DashboardSettings />} />
                 </Route>

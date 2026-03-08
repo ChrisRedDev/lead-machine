@@ -526,9 +526,19 @@ const DashboardCampaigns = () => {
                       onChange={(e) => setForm({ ...form, body: e.target.value })}
                       className="min-h-[180px] rounded-xl bg-secondary border-border text-sm resize-none"
                     />
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      Tokens: {`{{company_name}}, {{contact_name}}, {{role}}, {{fit_reason}}`}
-                    </p>
+                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <span className="text-[11px] text-muted-foreground">Insert tag:</span>
+                      {["{{company_name}}", "{{contact_name}}", "{{role}}", "{{fit_reason}}"].map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, body: f.body + tag }))}
+                          className="text-[10px] px-2 py-0.5 rounded-full border border-primary/30 bg-primary/8 text-primary hover:bg-primary/15 transition-colors font-mono"
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </Card>

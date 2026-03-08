@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Users, Plug, Kanban } from "lucide-react";
+import { Zap, Rocket, History, CreditCard, Coins, Settings, LogOut, Brain, BarChart3, Mail, Users, Plug, Kanban, Gift } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,6 +32,7 @@ const DashboardSidebar = () => {
     { icon: Plug, label: "Integrations", path: "/dashboard/integrations" },
     { icon: History, label: t("dashboard.previousExports"), path: "/dashboard/exports" },
     { icon: Coins, label: t("dashboard.credits"), path: "/dashboard/credits" },
+    { icon: Gift, label: "Referral", path: "/dashboard/referral" },
     { icon: CreditCard, label: t("dashboard.billing"), path: "/dashboard/billing" },
     { icon: Settings, label: t("dashboard.settings"), path: "/dashboard/settings" },
   ];
@@ -47,7 +48,7 @@ const DashboardSidebar = () => {
         <span className="font-display font-bold text-[15px] tracking-tight">LeadMachine AI</span>
       </div>
 
-      <nav className="flex-1 px-3 mt-2 space-y-0.5">
+      <nav className="flex-1 px-3 mt-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.path;
           return (
@@ -67,6 +68,11 @@ const DashboardSidebar = () => {
               {item.path === "/dashboard/credits" && credits !== null && (
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
                   {credits}
+                </span>
+              )}
+              {item.path === "/dashboard/referral" && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-success/10 text-success">
+                  Free
                 </span>
               )}
             </button>

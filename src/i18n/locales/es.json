@@ -17,7 +17,8 @@
   "stats": {
     "leadsGenerated": "Leads Generados",
     "businesses": "Empresas Atendidas",
-    "accuracy": "Precisión de Match"
+    "accuracy": "Precisión de Match",
+    "timeToLeads": "Tiempo Hasta Primeros Leads"
   },
   "features": {
     "title": "Cómo Funciona",

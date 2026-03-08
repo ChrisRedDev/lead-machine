@@ -17,7 +17,8 @@
   "stats": {
     "leadsGenerated": "Wygenerowanych Leadów",
     "businesses": "Obsłużonych Firm",
-    "accuracy": "Dokładność Dopasowania"
+    "accuracy": "Dokładność Dopasowania",
+    "timeToLeads": "Czas do Pierwszych Leadów"
   },
   "features": {
     "title": "Jak To Działa",
