@@ -485,7 +485,7 @@ const DashboardResearch = () => {
         </motion.div>
 
         {/* Edit Form */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4 border border-border rounded-2xl bg-card p-6">
+        <motion.div ref={formRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4 border border-border rounded-2xl bg-card p-6">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-display font-semibold">Business Profile</h3>
             <Button size="sm" variant="ghost" onClick={handleSave} disabled={saving} className="h-8 text-xs rounded-lg">
