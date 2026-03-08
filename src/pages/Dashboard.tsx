@@ -526,21 +526,56 @@ const Dashboard = () => {
                 )}
               </div>
 
-              {/* Brand analysis context banner */}
+              {/* Brand analysis context banner — expandable */}
               {brandAnalysis && (
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 p-3.5 rounded-xl bg-primary/8 border border-primary/15"
+                  className="rounded-xl bg-primary/8 border border-primary/15 overflow-hidden"
                 >
-                  <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-primary mb-0.5">Using your brand profile</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                      {brandAnalysis.value_proposition || `AI will use your saved brand analysis (${brandAnalysis.services?.slice(0,2).join(", ")}) to find better-matched leads.`}
-                    </p>
-                  </div>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20 font-semibold shrink-0">Active</span>
+                  <button
+                    className="w-full flex items-start gap-3 p-3.5 text-left"
+                    onClick={() => setBrandBannerExpanded(e => !e)}
+                  >
+                    <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-primary mb-0.5">Using your brand profile</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {brandAnalysis.value_proposition || `AI will use your saved brand analysis to find better-matched leads.`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20 font-semibold">Active</span>
+                      {brandBannerExpanded ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                    </div>
+                  </button>
+                  <AnimatePresence>
+                    {brandBannerExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-3.5 pb-3.5 space-y-2 border-t border-primary/10 pt-2.5">
+                          {brandAnalysis.icp_description && (
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              <span className="text-foreground font-semibold">ICP: </span>{brandAnalysis.icp_description}
+                            </p>
+                          )}
+                          {brandAnalysis.recommended_industries?.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              <span className="text-[11px] text-muted-foreground mr-1">Industries:</span>
+                              {brandAnalysis.recommended_industries.slice(0, 4).map((ind: string, i: number) => (
+                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20 font-medium">{ind}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
 
