@@ -252,10 +252,13 @@ const BrandAnalysisCard = ({ analysis, analyzedAt, onReanalyze, analyzing }: {
 
 const DashboardResearch = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const formRef = useRef<HTMLDivElement>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [confirmReanalyze, setConfirmReanalyze] = useState(false);
   const [form, setForm] = useState({
     company_url: "",
     company_name: "",
