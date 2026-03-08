@@ -426,7 +426,7 @@ const DashboardResearch = () => {
               Fill in your business details below and click "Analyze" to generate an AI brand overview. This improves lead generation quality significantly.
             </p>
             <Button
-              onClick={handleAnalyze}
+              onClick={() => handleAnalyze(false)}
               disabled={analyzing || (!form.company_url && !form.company_description)}
               className="h-10 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
             >
