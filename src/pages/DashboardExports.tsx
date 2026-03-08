@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileSpreadsheet, Download, Trash2, Loader2, Search, ExternalLink, Sparkles } from "lucide-react";
+import { FileSpreadsheet, Download, Trash2, Loader2, Search, ExternalLink, Sparkles, Copy, FileJson, Sheet } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -93,6 +93,35 @@ const DashboardExports = () => {
     URL.revokeObjectURL(url);
   };
 
+  const downloadJSON = (exp: Export) => {
+    const json = JSON.stringify(exp.leads, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${exp.name.replace(/\s+/g, "_")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("JSON exported");
+  };
+
+  const copyAllEmails = (exp: Export) => {
+    const leads = exp.leads as Lead[];
+    const emails = leads.map((l) => l.email).filter(Boolean).join(", ");
+    if (!emails) {
+      toast.error("No emails found in this export");
+      return;
+    }
+    navigator.clipboard.writeText(emails);
+    toast.success(`Copied ${leads.filter((l) => l.email).length} emails to clipboard`);
+  };
+
+  const openInGoogleSheets = (exp: Export) => {
+    // Download CSV first, then guide user
+    downloadCSV(exp);
+    toast.info("CSV downloaded! Go to sheets.new → File → Import → Upload the CSV file.", { duration: 6000 });
+  };
+
   const deleteExport = async (id: string) => {
     const { error } = await supabase.from("lead_exports").delete().eq("id", id);
     if (!error) {
@@ -125,7 +154,7 @@ const DashboardExports = () => {
           </div>
         ) : selectedExport ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div>
                 <Button variant="ghost" size="sm" className="text-[13px] mb-1" onClick={() => setSelectedExport(null)}>
                   ← {t("common.back")}
@@ -133,9 +162,35 @@ const DashboardExports = () => {
                 <h3 className="text-[15px] font-display font-semibold">{selectedExport.name}</h3>
                 <p className="text-xs text-muted-foreground">{selectedExport.lead_count} leads · {new Date(selectedExport.created_at).toLocaleDateString()}</p>
               </div>
-              <Button size="sm" className="h-9 rounded-xl text-[13px]" onClick={() => downloadCSV(selectedExport)}>
-                <Download className="w-3.5 h-3.5 mr-1.5" />{t("results.downloadCsv")}
-              </Button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-xl text-[12px]"
+                  onClick={() => copyAllEmails(selectedExport)}
+                >
+                  <Copy className="w-3 h-3 mr-1.5" />Copy Emails
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-xl text-[12px]"
+                  onClick={() => downloadJSON(selectedExport)}
+                >
+                  <FileJson className="w-3 h-3 mr-1.5" />JSON
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-xl text-[12px]"
+                  onClick={() => openInGoogleSheets(selectedExport)}
+                >
+                  <Sheet className="w-3 h-3 mr-1.5" />Google Sheets
+                </Button>
+                <Button size="sm" className="h-8 rounded-xl text-[12px]" onClick={() => downloadCSV(selectedExport)}>
+                  <Download className="w-3 h-3 mr-1.5" />{t("results.downloadCsv")}
+                </Button>
+              </div>
             </div>
             <div className="border border-border/40 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
@@ -170,7 +225,13 @@ const DashboardExports = () => {
                         </td>
                         <td className="p-3 text-muted-foreground">{lead.contact_person}</td>
                         <td className="p-3 text-muted-foreground">{lead.role}</td>
-                        <td className="p-3 text-muted-foreground">{lead.email}</td>
+                        <td className="p-3 text-muted-foreground">
+                          {lead.email ? (
+                            <a href={`mailto:${lead.email}`} className="hover:text-primary transition-colors">
+                              {lead.email}
+                            </a>
+                          ) : "—"}
+                        </td>
                         <td className="p-3">
                           {lead.score ? (
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold ${getScoreBg(lead.score)} ${getScoreColor(lead.score)}`}>
@@ -237,7 +298,10 @@ const DashboardExports = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Copy emails" onClick={(e) => { e.stopPropagation(); copyAllEmails(exp); }}>
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Download CSV" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}>
                         <Download className="w-3.5 h-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteExport(exp.id); }}>

@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { User, Bell, Key, AlertTriangle, Building, ExternalLink, Loader2, CheckCircle } from "lucide-react";
+import { User, Bell, Key, AlertTriangle, Building, ExternalLink, Loader2, CheckCircle, Sun, Moon, Monitor, Palette } from "lucide-react";
 import { toast } from "sonner";
 
 const DashboardSettings = () => {
