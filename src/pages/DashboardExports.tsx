@@ -284,11 +284,11 @@ const DashboardExports = () => {
                             </a>
                           ) : "—"}
                         </td>
-                        <td className="p-3">
+                         <td className="p-3">
                           {lead.score ? (
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold ${getScoreBg(lead.score)} ${getScoreColor(lead.score)}`}>
-                              <Sparkles className="w-3 h-3" />
-                              {lead.score}
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getScoreBg(lead.score)} ${getScoreColor(lead.score)}`}>
+                              <Sparkles className="w-2.5 h-2.5" />
+                              {parseInt(String(lead.score)) >= 90 ? "High" : parseInt(String(lead.score)) >= 80 ? "Good" : "Mid"} · {lead.score}
                             </span>
                           ) : (
                             <span className="text-muted-foreground">—</span>
