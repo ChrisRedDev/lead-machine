@@ -112,7 +112,7 @@ const BrandAnalysisCard = ({ analysis, analyzedAt, onReanalyze, analyzing }: {
         <Button
           size="sm"
           variant="outline"
-          onClick={onReanalyze}
+          onClick={() => onReanalyze()}
           disabled={analyzing}
           className="h-8 rounded-lg text-xs border-primary/20 hover:bg-primary/10"
         >
