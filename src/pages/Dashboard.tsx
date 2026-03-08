@@ -263,6 +263,24 @@ const Dashboard = () => {
                 )}
               </div>
 
+              {/* Brand analysis context banner */}
+              {brandAnalysis && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-3 p-3.5 rounded-xl bg-primary/8 border border-primary/15"
+                >
+                  <Brain className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-primary mb-0.5">Using your brand profile</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                      {brandAnalysis.value_proposition || `AI will use your saved brand analysis (${brandAnalysis.services?.slice(0,2).join(", ")}) to find better-matched leads.`}
+                    </p>
+                  </div>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/10 text-success border border-success/20 font-semibold shrink-0">Active</span>
+                </motion.div>
+              )}
+
               <div className="space-y-4">
                 <div>
                   <label className="text-[13px] font-medium mb-1.5 flex items-center gap-1">
