@@ -59,6 +59,7 @@ const Dashboard = () => {
   const [unlocked, setUnlocked] = useState(false);
   const [expandedLead, setExpandedLead] = useState<number | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [brandAnalysis, setBrandAnalysis] = useState<any>(null);
   const [form, setForm] = useState({
     companyUrl: "",
     description: "",
@@ -78,7 +79,7 @@ const Dashboard = () => {
     { icon: Sparkles, text: t("generating.step5"), color: "text-success" },
   ];
 
-  // Auto-fill form from saved profile
+  // Auto-fill form from saved profile + load brand analysis
   useEffect(() => {
     if (!user) return;
     supabase.from("profiles").select("*").eq("user_id", user.id).single().then(({ data }) => {
@@ -89,11 +90,12 @@ const Dashboard = () => {
           targetLocation: data.target_location || "",
           targetIndustry: data.target_industry || "",
           idealClient: data.ideal_client_description || "",
-          facebookUrl: data.facebook_url || "",
-          instagramUrl: data.instagram_url || "",
-          linkedinUrl: data.linkedin_url || "",
+          facebookUrl: (data as any).facebook_url || "",
+          instagramUrl: (data as any).instagram_url || "",
+          linkedinUrl: (data as any).linkedin_url || "",
         });
         if (data.company_url || data.company_description) setProfileLoaded(true);
+        if ((data as any).brand_analysis) setBrandAnalysis((data as any).brand_analysis);
       }
     });
   }, [user]);

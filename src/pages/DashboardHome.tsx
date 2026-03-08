@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
     TrendingUp, Users, FileSpreadsheet, Sparkles,
-    Mail, Phone, ExternalLink, ArrowUpRight, Loader2, Zap
+    Mail, ExternalLink, ArrowUpRight, Loader2, Zap, CheckCircle2, Circle,
+    Brain, Globe, Target
 } from "lucide-react";
 
 interface Lead {
@@ -40,13 +41,15 @@ const DashboardHome = () => {
     const [credits, setCredits] = useState<{ balance: number; total_used: number } | null>(null);
     const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
     const [latestExportName, setLatestExportName] = useState("");
+    const [profile, setProfile] = useState<any>(null);
 
     useEffect(() => {
         if (!user) return;
         const fetchData = async () => {
-            const [exportsRes, creditsRes] = await Promise.all([
+            const [exportsRes, creditsRes, profileRes] = await Promise.all([
                 supabase.from("lead_exports").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
                 supabase.from("credits").select("balance, total_used").eq("user_id", user.id).single(),
+                supabase.from("profiles").select("company_url, company_name, brand_analysis, facebook_url, instagram_url, linkedin_url").eq("user_id", user.id).single(),
             ]);
 
             if (exportsRes.data) {
@@ -61,6 +64,7 @@ const DashboardHome = () => {
                 }
             }
             if (creditsRes.data) setCredits(creditsRes.data);
+            if (profileRes.data) setProfile(profileRes.data);
             setLoading(false);
         };
         fetchData();
@@ -82,7 +86,6 @@ const DashboardHome = () => {
         return "bg-muted border-border";
     };
 
-    // Chart data based on real exports
     const chartPoints = [0, 15, 10, 35, 25, 55, 45, 70, 60, Math.min(totalLeads, 130)];
 
     const stats = [
@@ -91,6 +94,16 @@ const DashboardHome = () => {
         { label: "Credits Used", value: credits?.total_used ?? 0, icon: Zap, color: "text-warning" },
         { label: "Credits Left", value: credits?.balance ?? 0, icon: Sparkles, color: "text-accent" },
     ];
+
+    // Onboarding checklist
+    const onboardingSteps = [
+        { label: "Account created", done: true, icon: CheckCircle2 },
+        { label: "Website added", done: !!profile?.company_url, icon: Globe, action: "/dashboard/research" },
+        { label: "AI brand analysis done", done: !!(profile as any)?.brand_analysis, icon: Brain, action: "/dashboard/research" },
+        { label: "First leads generated", done: totalLeads > 0, icon: Target, action: "/dashboard/generate" },
+    ];
+    const allDone = onboardingSteps.every(s => s.done);
+    const doneCount = onboardingSteps.filter(s => s.done).length;
 
     return (
         <>
@@ -117,6 +130,53 @@ const DashboardHome = () => {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Onboarding checklist (hide when all done) */}
+                {!loading && !allDone && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 }}
+                    >
+                        <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-sm font-display font-semibold">Getting Started</h3>
+                                    <p className="text-xs text-muted-foreground">{doneCount} of {onboardingSteps.length} steps complete</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="h-1.5 w-24 rounded-full bg-border overflow-hidden">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${(doneCount / onboardingSteps.length) * 100}%` }}
+                                            transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                                            className="h-full rounded-full bg-gradient-primary"
+                                        />
+                                    </div>
+                                    <span className="text-xs font-semibold text-primary">{Math.round((doneCount / onboardingSteps.length) * 100)}%</span>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {onboardingSteps.map((step, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.3 + i * 0.07 }}
+                                        onClick={() => step.action && !step.done && navigate(step.action)}
+                                        className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${step.done ? "bg-success/8 border-success/20" : step.action ? "border-border hover:bg-secondary/80 cursor-pointer" : "border-border opacity-60"}`}
+                                    >
+                                        {step.done
+                                            ? <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                                            : <Circle className="w-4 h-4 text-muted-foreground shrink-0" />
+                                        }
+                                        <span className={`text-[11px] font-medium ${step.done ? "text-success" : "text-muted-foreground"}`}>{step.label}</span>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </Card>
+                    </motion.div>
+                )}
 
                 {/* Chart + CTA */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -180,7 +240,7 @@ const DashboardHome = () => {
                                     <FileSpreadsheet className="w-4 h-4 mr-2" /> View Exports
                                 </Button>
                                 <Button variant="outline" className="w-full h-11 rounded-xl" onClick={() => navigate("/dashboard/research")}>
-                                    <TrendingUp className="w-4 h-4 mr-2" /> Business Research
+                                    <Brain className="w-4 h-4 mr-2" /> Brand Intelligence
                                 </Button>
                             </div>
                         </div>
@@ -232,7 +292,6 @@ const DashboardHome = () => {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {/* Header */}
                             <div className="grid grid-cols-12 gap-3 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                 <div className="col-span-4">Company / Contact</div>
                                 <div className="col-span-3">Role</div>
@@ -274,9 +333,6 @@ const DashboardHome = () => {
                                             >
                                                 <Mail className="w-3.5 h-3.5" />
                                             </button>
-                                        )}
-                                        {lead.phone && (
-                                            <span className="truncate hidden lg:block">{lead.phone}</span>
                                         )}
                                         {lead.website && (
                                             <a
