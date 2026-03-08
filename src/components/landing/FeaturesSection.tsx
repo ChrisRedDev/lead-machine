@@ -1,14 +1,19 @@
 import { motion } from "framer-motion";
 import { Globe, Brain, Target, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import featuresImage from "@/assets/features-illustration.png";
+import stepScan from "@/assets/step-scan.png";
+import stepAi from "@/assets/step-ai.png";
+import stepLeads from "@/assets/step-leads.png";
+import stepOutreach from "@/assets/step-outreach.png";
 
 const accentColors = [
-  { border: "border-l-primary", dot: "bg-primary", icon: "text-primary", bg: "bg-primary/5" },
-  { border: "border-l-accent", dot: "bg-accent", icon: "text-accent", bg: "bg-accent/5" },
-  { border: "border-l-success", dot: "bg-success", icon: "text-success", bg: "bg-success/5" },
-  { border: "border-l-warning", dot: "bg-warning", icon: "text-warning", bg: "bg-warning/5" },
+  { border: "border-l-primary", dot: "bg-primary", icon: "text-primary", bg: "bg-primary/5", glow: "shadow-primary/10" },
+  { border: "border-l-accent", dot: "bg-accent", icon: "text-accent", bg: "bg-accent/5", glow: "shadow-accent/10" },
+  { border: "border-l-success", dot: "bg-success", icon: "text-success", bg: "bg-success/5", glow: "shadow-success/10" },
+  { border: "border-l-warning", dot: "bg-warning", icon: "text-warning", bg: "bg-warning/5", glow: "shadow-warning/10" },
 ];
+
+const stepImages = [stepScan, stepAi, stepLeads, stepOutreach];
 
 const FeaturesSection = () => {
   const { t } = useTranslation();
@@ -48,6 +53,7 @@ const FeaturesSection = () => {
 
           {steps.map((step, i) => {
             const color = accentColors[i];
+            const img = stepImages[i];
             return (
               <motion.div
                 key={i}
@@ -55,40 +61,37 @@ const FeaturesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className={`rounded-2xl border border-border ${color.border} border-l-[3px] bg-card p-6 hover-lift group`}
+                className={`rounded-2xl border border-border ${color.border} border-l-[3px] bg-card p-6 hover-lift group shadow-lg ${color.glow}`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl ${color.bg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300`}>
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center`}>
-                      <span className="text-primary-foreground text-sm font-bold">{i + 1}</span>
-                    </div>
+                  {/* Step image */}
+                  <div className={`w-16 h-16 rounded-2xl ${color.bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300 overflow-hidden`}>
+                    <img
+                      src={img}
+                      alt={`Step ${i + 1}`}
+                      className="w-12 h-12 object-contain"
+                    />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
                       <span className={`w-1.5 h-1.5 rounded-full ${color.dot}`} />
                       <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Step {i + 1}</span>
                     </div>
-                    <h3 className="text-[15px] font-semibold font-display mt-1 mb-1 flex items-center gap-2">
+                    <h3 className="text-[15px] font-semibold font-display mb-1 flex items-center gap-2">
                       <step.icon className={`w-4 h-4 ${color.icon}`} />
                       {t(step.titleKey)}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{t(step.descKey)}</p>
+                  </div>
+                  {/* Step number badge */}
+                  <div className={`w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center shrink-0 self-start`}>
+                    <span className="text-primary-foreground text-sm font-bold">{i + 1}</span>
                   </div>
                 </div>
               </motion.div>
             );
           })}
         </div>
-
-        {/* Illustration */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="mt-12 flex justify-center"
-        >
-          <img src={featuresImage} alt="AI-powered features" className="w-48 h-48 object-contain opacity-40 animate-float" />
-        </motion.div>
       </div>
     </section>
   );

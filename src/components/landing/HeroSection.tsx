@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useRef } from "react";
+import heroDashboard from "@/assets/hero-dashboard-new.png";
 
 const TICKER_ITEMS = [
   "SaaS · 94 match",
