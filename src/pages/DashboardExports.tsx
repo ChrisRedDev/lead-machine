@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileSpreadsheet, Download, Trash2, Loader2, Search } from "lucide-react";
+import { FileSpreadsheet, Download, Trash2, Loader2, Search, ExternalLink, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,7 @@ interface Lead {
   email: string;
   phone: string;
   industry: string;
+  score?: number | string;
   fit_reason: string;
 }
 
@@ -35,6 +36,22 @@ const statusColors: Record<string, string> = {
   failed: "bg-destructive/10 text-destructive",
 };
 
+const getScoreColor = (score?: number | string) => {
+  const n = parseInt(String(score || 0));
+  if (n >= 90) return "text-success";
+  if (n >= 80) return "text-primary";
+  if (n >= 70) return "text-warning";
+  return "text-muted-foreground";
+};
+
+const getScoreBg = (score?: number | string) => {
+  const n = parseInt(String(score || 0));
+  if (n >= 90) return "bg-success/10 border border-success/30";
+  if (n >= 80) return "bg-primary/10 border border-primary/30";
+  if (n >= 70) return "bg-warning/10 border border-warning/30";
+  return "bg-muted border border-border";
+};
+
 const DashboardExports = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -48,7 +65,11 @@ const DashboardExports = () => {
   }, [user]);
 
   const fetchExports = async () => {
-    const { data, error } = await supabase.from("lead_exports").select("*").eq("user_id", user!.id).order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("lead_exports")
+      .select("*")
+      .eq("user_id", user!.id)
+      .order("created_at", { ascending: false });
     if (!error && data) setExports(data as unknown as Export[]);
     setLoading(false);
   };
@@ -56,8 +77,12 @@ const DashboardExports = () => {
   const downloadCSV = (exp: Export) => {
     const leads = exp.leads as Lead[];
     if (!leads.length) return;
-    const headers = ["Company Name", "Contact Person", "Role", "Website", "Email", "Phone", "Industry", "Fit Reason"];
-    const rows = leads.map((l) => [l.company_name, l.contact_person, l.role, l.website, l.email, l.phone, l.industry, l.fit_reason].map((v) => `"${(v || "").replace(/"/g, '""')}"`).join(","));
+    const headers = ["Company Name", "Contact Person", "Role", "Website", "Email", "Phone", "Industry", "Score", "Fit Reason"];
+    const rows = leads.map((l) =>
+      [l.company_name, l.contact_person, l.role, l.website, l.email, l.phone, l.industry, String(l.score || ""), l.fit_reason]
+        .map((v) => `"${(v || "").replace(/"/g, '""')}"`)
+        .join(",")
+    );
     const csv = [headers.join(","), ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -79,7 +104,14 @@ const DashboardExports = () => {
 
   const filteredExports = exports.filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
 
-  if (loading) return (<><DashboardHeader title={t("dashboard.previousExports")} /><div className="flex items-center justify-center py-20"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div></>);
+  if (loading) return (
+    <>
+      <DashboardHeader title={t("dashboard.previousExports")} />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -95,7 +127,9 @@ const DashboardExports = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <Button variant="ghost" size="sm" className="text-[13px] mb-1" onClick={() => setSelectedExport(null)}>← {t("common.back")}</Button>
+                <Button variant="ghost" size="sm" className="text-[13px] mb-1" onClick={() => setSelectedExport(null)}>
+                  ← {t("common.back")}
+                </Button>
                 <h3 className="text-[15px] font-display font-semibold">{selectedExport.name}</h3>
                 <p className="text-xs text-muted-foreground">{selectedExport.lead_count} leads · {new Date(selectedExport.created_at).toLocaleDateString()}</p>
               </div>
@@ -106,23 +140,49 @@ const DashboardExports = () => {
             <div className="border border-border/40 rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-[13px]">
-                  <thead><tr className="border-b border-border/40 bg-secondary/30">
-                    <th className="text-left font-medium p-3">{t("results.company")}</th>
-                    <th className="text-left font-medium p-3">{t("results.contact")}</th>
-                    <th className="text-left font-medium p-3">{t("results.role")}</th>
-                    <th className="text-left font-medium p-3">{t("results.email")}</th>
-                    <th className="text-left font-medium p-3">{t("results.industry")}</th>
-                    <th className="text-left font-medium p-3">{t("results.fitReason")}</th>
-                  </tr></thead>
+                  <thead>
+                    <tr className="border-b border-border/40 bg-secondary/30">
+                      <th className="text-left font-medium p-3">{t("results.company")}</th>
+                      <th className="text-left font-medium p-3">{t("results.contact")}</th>
+                      <th className="text-left font-medium p-3">{t("results.role")}</th>
+                      <th className="text-left font-medium p-3">{t("results.email")}</th>
+                      <th className="text-left font-medium p-3 w-20">Score</th>
+                      <th className="text-left font-medium p-3">{t("results.industry")}</th>
+                      <th className="text-left font-medium p-3">{t("results.fitReason")}</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {(selectedExport.leads as Lead[]).map((lead, i) => (
                       <tr key={i} className="border-b border-border/30 hover:bg-secondary/20 transition-colors">
-                        <td className="p-3 font-medium">{lead.company_name}</td>
+                        <td className="p-3 font-medium">
+                          <div className="flex items-center gap-2">
+                            {lead.website ? (
+                              <a
+                                href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`}
+                                target="_blank" rel="noopener noreferrer"
+                                className="hover:text-primary transition-colors flex items-center gap-1"
+                              >
+                                {lead.company_name}
+                                <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                              </a>
+                            ) : lead.company_name}
+                          </div>
+                        </td>
                         <td className="p-3 text-muted-foreground">{lead.contact_person}</td>
                         <td className="p-3 text-muted-foreground">{lead.role}</td>
                         <td className="p-3 text-muted-foreground">{lead.email}</td>
+                        <td className="p-3">
+                          {lead.score ? (
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold ${getScoreBg(lead.score)} ${getScoreColor(lead.score)}`}>
+                              <Sparkles className="w-3 h-3" />
+                              {lead.score}
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </td>
                         <td className="p-3 text-muted-foreground">{lead.industry}</td>
-                        <td className="p-3 text-muted-foreground max-w-[200px] truncate">{lead.fit_reason}</td>
+                        <td className="p-3 text-muted-foreground max-w-[220px] truncate" title={lead.fit_reason}>{lead.fit_reason}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -132,7 +192,6 @@ const DashboardExports = () => {
           </motion.div>
         ) : (
           <div>
-            {/* Search bar */}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -144,26 +203,50 @@ const DashboardExports = () => {
             </div>
 
             <div className="space-y-2">
-              {filteredExports.map((exp) => (
-                <div key={exp.id} className="flex items-center justify-between border border-border/40 rounded-xl p-4 hover:bg-secondary/20 transition-colors cursor-pointer" onClick={() => setSelectedExport(exp)}>
-                  <div className="flex items-center gap-3">
-                    <FileSpreadsheet className="w-4 h-4 text-primary shrink-0" />
-                    <div>
-                      <h4 className="text-[13px] font-medium">{exp.name}</h4>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${statusColors[exp.status] || statusColors.completed}`}>
-                          {exp.status || "completed"}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{exp.lead_count} leads · {new Date(exp.created_at).toLocaleDateString()}</span>
+              {filteredExports.map((exp, i) => {
+                const leads = exp.leads as Lead[];
+                const avgScore = leads.length
+                  ? Math.round(leads.reduce((s, l) => s + parseInt(String(l.score || 0)), 0) / leads.length)
+                  : 0;
+                return (
+                  <motion.div
+                    key={exp.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex items-center justify-between border border-border/40 rounded-xl p-4 hover:bg-secondary/20 transition-colors cursor-pointer hover:border-border"
+                    onClick={() => setSelectedExport(exp)}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileSpreadsheet className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-[13px] font-medium truncate">{exp.name}</h4>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${statusColors[exp.status] || statusColors.completed}`}>
+                            {exp.status || "completed"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{exp.lead_count} leads · {new Date(exp.created_at).toLocaleDateString()}</span>
+                          {avgScore > 0 && (
+                            <span className={`inline-flex items-center gap-0.5 text-xs font-bold ${getScoreColor(avgScore)}`}>
+                              <Sparkles className="w-3 h-3" /> avg {avgScore}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}><Download className="w-3.5 h-3.5" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteExport(exp.id); }}><Trash2 className="w-3.5 h-3.5" /></Button>
-                  </div>
-                </div>
-              ))}
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); downloadCSV(exp); }}>
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); deleteExport(exp.id); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         )}
