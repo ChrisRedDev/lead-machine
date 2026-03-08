@@ -17,7 +17,8 @@
   "stats": {
     "leadsGenerated": "Leads Generated",
     "businesses": "Businesses Served",
-    "accuracy": "Match Accuracy"
+    "accuracy": "Match Accuracy",
+    "timeToLeads": "Time to First Leads"
   },
   "features": {
     "title": "How It Works",
