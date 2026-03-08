@@ -282,6 +282,7 @@ const Dashboard = () => {
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [brandAnalysis, setBrandAnalysis] = useState<any>(null);
   const [emailComposeLead, setEmailComposeLead] = useState<any>(null);
+  const [brandBannerExpanded, setBrandBannerExpanded] = useState(false);
   const [form, setForm] = useState({
     companyUrl: "",
     description: "",
