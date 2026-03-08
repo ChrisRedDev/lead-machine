@@ -404,6 +404,32 @@ const DashboardResearch = () => {
         </motion.div>
 
         {/* AI Brand Analysis Card */}
+        {/* Re-analyze confirmation banner */}
+        <AnimatePresence>
+          {confirmReanalyze && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-start gap-3 p-4 rounded-xl bg-warning/10 border border-warning/25"
+            >
+              <AlertTriangle className="w-4 h-4 text-warning shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-warning mb-0.5">Replace existing analysis?</p>
+                <p className="text-xs text-muted-foreground">This will overwrite your current AI brand analysis. Your current analysis will be lost.</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs" onClick={() => setConfirmReanalyze(false)}>
+                  <X className="w-3 h-3 mr-1" /> Cancel
+                </Button>
+                <Button size="sm" className="h-8 rounded-lg text-xs bg-warning text-warning-foreground hover:bg-warning/90" onClick={() => handleAnalyze(true)}>
+                  <Check className="w-3 h-3 mr-1" /> Yes, Re-analyze
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {brandAnalysis ? (
           <BrandAnalysisCard
             analysis={brandAnalysis}
