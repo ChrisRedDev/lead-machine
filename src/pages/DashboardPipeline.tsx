@@ -120,7 +120,9 @@ const LeadCard = ({
           <p className="text-[11px] text-muted-foreground truncate">{lead.contact_name} · {lead.role}</p>
         </div>
         {lead.score && (
-          <span className={`text-[11px] font-bold shrink-0 ${scoreColor}`}>{lead.score}</span>
+          <span className={`text-[11px] font-bold shrink-0 px-2 py-0.5 rounded-full border ${scoreBadge}`}>
+            {scoreLabel} · {lead.score}
+          </span>
         )}
       </div>
 
