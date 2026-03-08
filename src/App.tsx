@@ -28,6 +28,7 @@ import DashboardIntegrations from "./pages/DashboardIntegrations";
 import DashboardPipeline from "./pages/DashboardPipeline";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SupportChatWidget from "./components/SupportChatWidget";
+import DashboardReferral from "./pages/DashboardReferral";
 
 const queryClient = new QueryClient();
 
