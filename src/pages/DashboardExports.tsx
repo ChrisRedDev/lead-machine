@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileSpreadsheet, Download, Trash2, Loader2, Search, ExternalLink, Sparkles, Copy, FileJson, Sheet } from "lucide-react";
+import { FileSpreadsheet, Download, Trash2, Loader2, Search, ExternalLink, Sparkles, Copy, FileJson, Sheet, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
