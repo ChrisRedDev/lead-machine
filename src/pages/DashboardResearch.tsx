@@ -324,7 +324,14 @@ const DashboardResearch = () => {
     setSaving(false);
   };
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (confirmed = false) => {
+    // If analysis already exists, require confirmation
+    const currentAnalysis = (profile as any)?.brand_analysis;
+    if (currentAnalysis && !confirmed) {
+      setConfirmReanalyze(true);
+      return;
+    }
+    setConfirmReanalyze(false);
     setAnalyzing(true);
     // Save first
     await supabase.from("profiles").update({
