@@ -350,6 +350,8 @@ const DashboardPipeline = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [notesLead, setNotesLead] = useState<PipelineLead | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [pipelineSearch, setPipelineSearch] = useState("");
+  const [scoreFilter, setScoreFilter] = useState<"all" | "high" | "good" | "medium">("all");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
