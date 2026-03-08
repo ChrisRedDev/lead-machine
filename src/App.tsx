@@ -27,6 +27,7 @@ import DashboardTeam from "./pages/DashboardTeam";
 import DashboardIntegrations from "./pages/DashboardIntegrations";
 import DashboardPipeline from "./pages/DashboardPipeline";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SupportChatWidget from "./components/SupportChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <SupportChatWidget />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>
