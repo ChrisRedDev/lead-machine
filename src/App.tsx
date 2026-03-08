@@ -24,6 +24,7 @@ import DashboardAnalytics from "./pages/DashboardAnalytics";
 import DashboardCampaigns from "./pages/DashboardCampaigns";
 import DashboardTeam from "./pages/DashboardTeam";
 import DashboardIntegrations from "./pages/DashboardIntegrations";
+import DashboardPipeline from "./pages/DashboardPipeline";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
