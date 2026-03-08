@@ -108,6 +108,8 @@ export default function SupportChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [showNudge, setShowNudge] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -119,9 +121,24 @@ export default function SupportChatWidget() {
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
+      setShowNudge(false);
+      setIsPulsing(false);
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen]);
+
+  // After 5 seconds, show nudge tooltip + start pulse — dismiss on open
+  useEffect(() => {
+    const pulseTimer = setTimeout(() => setIsPulsing(true), 5000);
+    const nudgeTimer = setTimeout(() => setShowNudge(true), 5500);
+    // Auto-hide nudge after 8 seconds
+    const hideTimer = setTimeout(() => setShowNudge(false), 13500);
+    return () => {
+      clearTimeout(pulseTimer);
+      clearTimeout(nudgeTimer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
