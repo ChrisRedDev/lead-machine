@@ -4,13 +4,27 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
+const CACHE_KEY = "onboarding_complete";
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const [checkingProfile, setCheckingProfile] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // Clear cache on user change (sign-out)
+      sessionStorage.removeItem(CACHE_KEY);
+      return;
+    }
+
+    // Check cache first to avoid loading flash on every navigation
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    if (cached !== null) {
+      setNeedsOnboarding(cached === "false");
+      return;
+    }
+
     setCheckingProfile(true);
     supabase
       .from("profiles")
@@ -18,7 +32,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        setNeedsOnboarding(!data?.company_url);
+        const needs = !data?.company_url;
+        setNeedsOnboarding(needs);
+        sessionStorage.setItem(CACHE_KEY, String(!needs));
         setCheckingProfile(false);
       });
   }, [user]);
@@ -35,7 +51,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // If on onboarding page already, don't redirect again
   if (needsOnboarding && typeof window !== "undefined" && !window.location.pathname.includes("/onboarding")) {
     return <Navigate to="/onboarding" replace />;
   }
