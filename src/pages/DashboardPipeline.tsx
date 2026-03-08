@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Sparkles, Building, User, Mail, ExternalLink, Trash2,
-  MoreHorizontal, Download, RefreshCw, ChevronRight, X, StickyNote
+  MoreHorizontal, Download, RefreshCw, ChevronRight, X, StickyNote, Search, Filter
 } from "lucide-react";
 import { toast } from "sonner";
 import {
