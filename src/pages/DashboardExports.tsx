@@ -135,6 +135,30 @@ const DashboardExports = () => {
 
   const filteredExports = exports.filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
 
+  const filterLeads = (leads: Lead[]) => {
+    let filtered = leads;
+    if (leadSearch.trim()) {
+      const q = leadSearch.toLowerCase();
+      filtered = filtered.filter(l =>
+        l.company_name?.toLowerCase().includes(q) ||
+        l.contact_person?.toLowerCase().includes(q) ||
+        l.role?.toLowerCase().includes(q) ||
+        l.industry?.toLowerCase().includes(q) ||
+        l.email?.toLowerCase().includes(q)
+      );
+    }
+    if (scoreFilter !== "all") {
+      filtered = filtered.filter(l => {
+        const n = parseInt(String(l.score || 0));
+        if (scoreFilter === "high") return n >= 90;
+        if (scoreFilter === "good") return n >= 80 && n < 90;
+        if (scoreFilter === "medium") return n >= 70 && n < 80;
+        return true;
+      });
+    }
+    return filtered;
+  };
+
   if (loading) return (
     <>
       <DashboardHeader title={t("dashboard.previousExports")} />
