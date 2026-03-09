@@ -25,6 +25,18 @@ const Login = () => {
     if (user) navigate("/dashboard");
   }, [user, navigate]);
 
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setError("");
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/dashboard",
+    });
+    if (error) {
+      setError(error.message);
+      setGoogleLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
