@@ -14,6 +14,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
